@@ -1,13 +1,13 @@
 // Función para formatear fechas al estándar HTML5 (datetime-local)
-  export const safeDate = (val: any) => {
+  export const safeDate = (val: string | number | Date | null | undefined): string => {
     if (!val) return "";
     try {
       // Si es un string de EXIF (ej: 2026:05:15 10:30:00), cambiamos los primeros ':' por '-'
-      let cleanVal = val;
+      let cleanVal: string | number | Date = val;
       if (typeof val === 'string') {
         cleanVal = val.replace(/^(\d{4}):(\d{2}):(\d{2})/, "$1-$2-$3");
       }
-      
+
       const dateObj = cleanVal instanceof Date ? cleanVal : new Date(cleanVal);
       if (isNaN(dateObj.getTime())) return "";
       
