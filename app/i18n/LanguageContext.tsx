@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState } from "react";
 import en from "./locales/en.json";
 import es from "./locales/es.json";
 import de from "./locales/de.json";
@@ -38,16 +38,13 @@ function resolve(obj: unknown, key: string): string {
 }
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  // Start with "en" to match the server render; the real language is set in useEffect
-  // after hydration to avoid a React hydration mismatch.
-  const [language, setLang] = useState<Language>("en");
-
-  useEffect(() => {
-    // localStorage is only available on the client, so this runs after hydration.
-    // Priority: user's saved preference → browser language → "en"
+  // Lazy initializer: runs only on the client (typeof window guard makes it SSR-safe).
+  // Priority: user's saved preference → browser language → "en"
+  const [language, setLang] = useState<Language>(() => {
+    if (typeof window === "undefined") return "en";
     const saved = localStorage.getItem(STORAGE_KEY) as Language | null;
-    setLang(saved && SUPPORTED.includes(saved) ? saved : detectBrowserLanguage());
-  }, []);
+    return saved && SUPPORTED.includes(saved) ? saved : detectBrowserLanguage();
+  });
 
   const setLanguage = (lang: Language) => {
     setLang(lang);
