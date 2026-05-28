@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useCallback, useState } from "react";
 import { useDropzone, FileRejection } from "react-dropzone";
 import { useImageStore } from "../store/useImageStore";
@@ -73,7 +74,7 @@ export default function ImageMetaData() {
         }
       }
     },
-    [setImage, setMetadata, setIsExtracting],
+    [setImage, setMetadata, setIsExtracting, t],
   );
 
   // Función de error (OnDropRejected)
@@ -143,10 +144,12 @@ export default function ImageMetaData() {
         </button>
 
         {previewUrl && (
-          <img
-            src={previewUrl}
+          <Image
+            src={previewUrl ?? ""}
             alt="Preview"
-            className="w-full h-auto max-h-125 object-contain rounded-lg"
+            fill
+            className="object-contain rounded-lg"
+            unoptimized
           />
         )}
 
