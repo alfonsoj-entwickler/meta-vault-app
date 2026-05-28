@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
-import type { Container, ISourceOptions } from "@tsparticles/engine";
+import type { ISourceOptions } from "@tsparticles/engine";
 
 export default function ParticlesBg() {
   const [init, setInit] = useState(false);
@@ -17,10 +17,6 @@ export default function ParticlesBg() {
       setInit(true);
     });
   }, []);
-
-  const particlesLoaded = async (container?: Container): Promise<void> => {
-    console.log("Particles loaded:", container);
-  };
 
   // CONFIGURACIÓN ULTRA-SMOOTH DE BURBUJAS
   const options: ISourceOptions = {
