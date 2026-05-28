@@ -67,7 +67,7 @@ export default function FileDropZone() {
         }
       }
     },
-    [setImage, setMetadata, setIsExtracting],
+    [setImage, setMetadata, setIsExtracting, t],
   );
 
   // Función de error (OnDropRejected)
