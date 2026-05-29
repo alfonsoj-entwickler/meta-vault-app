@@ -1,19 +1,19 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import ImageMetaData from "./components/ImageMetaData";
-import FileDropZone from "./components/FileDropZone";
-import { useImageStore } from "./store/useImageStore";
+import ImageMetaData from "@/components/ImageMetaData";
+import FileDropZone from "@/components/FileDropZone";
+import { useImageStore } from "@/store/useImageStore";
 
 // MetadataEditor imports Leaflet, which accesses `window` at module evaluation time.
 // ssr: false prevents Next.js from attempting to prerender it on the server.
-const MetadataEditor = dynamic(() => import("./components/MetadataEditor"), {
+const MetadataEditor = dynamic(() => import("@/components/MetadataEditor"), {
   ssr: false,
   loading: () => null,
 });
 
 // tsparticles also touches `window` on import, so it needs the same treatment.
-const ParticlesBg = dynamic(() => import("./components/ParticlesBg"), {
+const ParticlesBg = dynamic(() => import("@/components/ParticlesBg"), {
   ssr: false,
   loading: () => null,
 });
