@@ -1,24 +1,70 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "./i18n/LanguageContext";
 import LanguageSelector from "./components/LanguageSelector";
 import en from "./i18n/locales/en.json";
-import es from "./i18n/locales/es.json";
-import de from "./i18n/locales/de.json";
-import zh from "./i18n/locales/zh.json";
 
-const seoLocales = { en, es, de, zh };
-type SeoLang = keyof typeof seoLocales;
-const SUPPORTED_LANGS: SeoLang[] = ["en", "es", "de", "zh"];
+// This is a static export (output: "export") — there is no runtime server.
+// Metadata is generated once at build time, so we always use English here.
+// The client-side LanguageProvider handles the user's actual language preference.
+export const metadata: Metadata = {
+  metadataBase: new URL("http://localhost:3000/"),
+  title: { default: "Meta Vault", template: "%s | Meta Vault" },
+  description: en.seo.description,
+  keywords: en.seo.keywords,
+  alternates: {
+    canonical: "http://localhost:3000/", // La URL principal o por defecto
+    languages: {
+      "es-ES": "http://localhost:3000/",
+      "en-US": "http://localhost:3000/",
+      "x-default": "http://localhost:3000/",
+    },
+  },
+  openGraph: {
+    title: "Meta Vault",
+    description: en.seo.description,
+    url: "http://localhost:3000/",
+    siteName: "Meta Vault",
+    images: [
+      {
+        url: "/images/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: en.seo.ogImageAlt,
+      },
+    ],
+    type: "website",
+    locale: en.seo.ogLocale,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Meta Vault",
+    description: en.seo.description,
+    images: ["/images/og-image.jpg"],
+    creator: "@tu_usuario_twitter",
+  },
+  // 4. Iconos y Manifest (PWA / Navegadores)
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/images/favicon-32x32.png",
+    apple: "/images/apple-touch-icon.png",
+  },
+  manifest: "http://localhost:3000/manifest.json",
 
-// Reads the HTTP Accept-Language header and returns the best supported language.
-function detectLangFromHeader(acceptLanguage: string | null): SeoLang {
-  if (!acceptLanguage) return "en";
-  const lang = acceptLanguage.split(",")[0].split("-")[0].trim();
-  return SUPPORTED_LANGS.includes(lang as SeoLang) ? (lang as SeoLang) : "en";
-}
+  // 5. Robots e Indexación detallada
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+};
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,49 +76,16 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export async function generateMetadata(): Promise<Metadata> {
-  const lang = detectLangFromHeader((await headers()).get("accept-language"));
-  const { seo } = seoLocales[lang];
-
-  return {
-    metadataBase: new URL("https://meta-vault.app"),
-    title: { default: "Meta Vault", template: "%s | Meta Vault" },
-    description: seo.description,
-    keywords: seo.keywords,
-    openGraph: {
-      title: "Meta Vault",
-      description: seo.description,
-      url: "https://meta-vault.app",
-      siteName: "Meta Vault",
-      images: [
-        {
-          url: "/images/logo_1024.png",
-          width: 1024,
-          height: 1024,
-          alt: seo.ogImageAlt,
-        },
-      ],
-      type: "website",
-      locale: seo.ogLocale,
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: "Meta Vault",
-      description: seo.description,
-    },
-    robots: { index: true, follow: true },
-  };
-}
-
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const lang = detectLangFromHeader((await headers()).get("accept-language"));
+  // lang="en" matches the static HTML. LanguageProvider updates the UI language
+  // client-side after hydration — no server-side detection needed for a static export.
   return (
     <html
-      lang={lang}
+      lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
@@ -82,7 +95,7 @@ export default async function RootLayout({
           type="image/svg+xml"
           sizes="48x48"
         />
-        <link rel="canonical" href="https://meta-vault.app" key="canonical" />
+        <link rel="canonical" href="http://localhost:3000/" key="canonical" />
       </head>
       <body className="min-h-full flex flex-col">
         <LanguageProvider>
