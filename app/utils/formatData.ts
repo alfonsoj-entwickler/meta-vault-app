@@ -10,11 +10,11 @@ export const decimalToDMS = (decimal: string | number): DMSTuple | null => {
   const minutes = Math.floor(minutesFloat);
   const secondsFloat = (minutesFloat - minutes) * 60;
 
-  // Retornamos el array de arrays [numerador, denominador]
+  // Return the array of arrays [numerator, denominator]
   return [
     [degrees, 1],
     [minutes, 1],
-    [Math.round(secondsFloat * 1000000), 1000000], // Multiplicamos alto para no perder precisión en los segundos
+    [Math.round(secondsFloat * 1000000), 1000000], // Multiply high to avoid losing precision in seconds
   ] as DMSTuple;
 };
 

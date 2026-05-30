@@ -48,7 +48,7 @@ const customIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
-// Componente auxiliar para actualizar el centro del mapa si cambian las coordenadas
+// Helper component to update the map center if coordinates change
 function ChangeView({ center }: { center: [number, number] }) {
   const map = useMap();
   map.setView(center, map.getZoom());
@@ -92,7 +92,7 @@ export default function MetadataEditor() {
     "DateTimeOriginal",
     "Latitude",
     "Longitude",
-    "Altitude", // Nombres que usa ExifReader
+    "Altitude", // Names used by ExifReader
   ];
 
   // Flatten ExifReader's grouped output (exif/file/xmp/iptc) into a single
@@ -113,7 +113,7 @@ export default function MetadataEditor() {
   }, []);
 
   if (metadata) {
-    // ExifReader agrupa los datos en estas categorías principales
+    // ExifReader groups the data into these main categories
     const grupos = ["exif", "file", "xmp", "iptc"];
 
     const metaAsRecord = metadata as Record<string, unknown>;
@@ -121,14 +121,14 @@ export default function MetadataEditor() {
       if (metaAsRecord[grupo]) {
         Object.entries(metaAsRecord[grupo] as Record<string, unknown>).forEach(
           ([key, tag]) => {
-            // Si está en la lista de excluidos, lo saltamos
+            // If it is in the excluded list, we skip it
             if (camposExcluidos.includes(key)) return;
 
-            // ExifReader guarda el valor legible en .description o .value
+            // ExifReader stores the readable value in .description or .value
             const rawTag = tag as { description?: unknown; value?: unknown };
             const displayValue = rawTag?.description ?? rawTag?.value;
 
-            // Filtramos buffers binarios (como miniaturas) o datos vacíos
+            // We filter binary buffers (like thumbnails) or empty data
             if (
               displayValue !== undefined &&
               displayValue !== null &&
@@ -161,7 +161,7 @@ export default function MetadataEditor() {
           !formData.DateTimeOriginal;
 
         if (isScrubbed) {
-          jpegData = piexif.remove(jpegData); // Borrado total
+          jpegData = piexif.remove(jpegData); // Total wipe / removal
         } else {
           let exifObj;
           try {
@@ -171,7 +171,7 @@ export default function MetadataEditor() {
             console.error(`Error: ${err} - ${exifObj}`);
           }
 
-          // Inyección de campos editados
+          // Injection of edited fields
           if (exifObj["0th"]) {
             if (formData.Make)
               exifObj["0th"][piexif.ImageIFD.Make] = formData.Make;
@@ -198,7 +198,7 @@ export default function MetadataEditor() {
               delete exifObj["Exif"][piexif.ExifIFD.DateTimeOriginal];
             }
           }
-          // LÓGICA DE INYECCIÓN GPS
+          // GPS INJECTION LOGIC
           const latNum = parseFloat(formData.latitude);
           const lngNum = parseFloat(formData.longitude);
 
@@ -208,23 +208,23 @@ export default function MetadataEditor() {
             formData.latitude !== "" &&
             formData.longitude !== ""
           ) {
-            // Asegurarnos de que existe el diccionario GPS
+            // Ensure the GPS dictionary exists
             if (!exifObj["GPS"]) exifObj["GPS"] = {};
 
-            // 1. Inyectar Latitud y su Referencia
+            // 1. Inject Latitude and its Reference
             exifObj["GPS"][piexif.GPSIFD.GPSLatitudeRef] =
               latNum < 0 ? "S" : "N";
             exifObj["GPS"][piexif.GPSIFD.GPSLatitude] = decimalToDMS(latNum);
 
-            // 2. Inyectar Longitud y su Referencia
+            // 2. Inject Longitude and its Reference
             exifObj["GPS"][piexif.GPSIFD.GPSLongitudeRef] =
               lngNum < 0 ? "W" : "E";
             exifObj["GPS"][piexif.GPSIFD.GPSLongitude] = decimalToDMS(lngNum);
 
-            // 3. Añadir la versión del GPS (Exigido por el estándar EXIF)
+            // 3. Add the GPS version (Required by the EXIF standard)
             exifObj["GPS"][piexif.GPSIFD.GPSVersionID] = [2, 2, 0, 0];
           } else {
-            // Si el usuario borró los campos o puso datos inválidos, eliminamos toda la carpeta GPS
+            // If the user cleared the fields or entered invalid data, we delete the entire GPS folder
             exifObj["GPS"] = {};
           }
 
@@ -232,7 +232,7 @@ export default function MetadataEditor() {
           jpegData = piexif.insert(exifBytes, jpegData);
         }
 
-        // Descargar
+        // Download
         descargarBlob(jpegData, "image/jpeg");
       } catch (error) {
         console.error("Error al procesar la imagen:", error);
@@ -246,21 +246,21 @@ export default function MetadataEditor() {
   const exportarPng = async () => {
     if (!imageFile) return; // imageFile is File | null — nothing to export if null
     try {
-      // 1. Leer el archivo directamente a la memoria RAM (ArrayBuffer)
+      // 1. Read the file directly into RAM (ArrayBuffer)
       const arrayBuffer = await imageFile.arrayBuffer();
       const buffer = new Uint8Array(arrayBuffer);
 
-      // 2. Extraer todos los fragmentos (chunks) de la imagen
+      // 2. Extract all chunks from the image
       let chunks = extractChunks(buffer);
 
-      // 3. LIMPIEZA MÁXIMA: Identificamos los fragmentos que suelen llevar metadatos y los filtramos
+      // 3. MAXIMUM CLEANUP: Identify chunks that usually carry metadata and filter them
       const chunksNoDeseados = ["tEXt", "zTXt", "iTXt", "eXIf"];
       chunks = chunks.filter(
         (chunk: { name: string; data: Uint8Array }) =>
           !chunksNoDeseados.includes(chunk.name),
       );
 
-      // Evaluamos si solo queríamos borrar todo o si hay que reescribir
+      // Evaluate whether we just wanted to wipe everything or if we need to rewrite
       const isScrubbed =
         !formData.Make &&
         !formData.Model &&
@@ -271,8 +271,8 @@ export default function MetadataEditor() {
         !formData.DateTimeOriginal;
 
       if (!isScrubbed) {
-        // --- CONSTRUCCIÓN DEL NUEVO EXIF ---
-        // Creamos una estructura EXIF vacía
+        // --- NEW EXIF CONSTRUCTION ---
+        // Create an empty EXIF structure
         const exifObj: Record<string, Record<number, unknown>> = {
           "0th": {},
           Exif: {},
@@ -280,7 +280,7 @@ export default function MetadataEditor() {
           "1st": {},
         };
 
-        // Llenamos el objeto con los datos del formulario (Igual que en el JPEG)
+        // Fill the object with form data (Same as in JPEG)
         if (formData.Make) exifObj["0th"][piexif.ImageIFD.Make] = formData.Make;
         if (formData.Model)
           exifObj["0th"][piexif.ImageIFD.Model] = formData.Model;
@@ -308,37 +308,37 @@ export default function MetadataEditor() {
           exifObj["GPS"][piexif.GPSIFD.GPSVersionID] = [2, 2, 0, 0];
         }
 
-        // 4. EL TRUCO DEL EXPERTO: Ajustar la cabecera para el estándar PNG
-        // piexif.dump() crea la cadena binaria, pero añade la cabecera "Exif\0\0" propia de JPEG
+        // 4. EXPERT TRICK: Adjust the header for the PNG standard
+        // piexif.dump() creates the binary string, but adds the JPEG-specific "Exif\0\0" header
         const exifBytesString = piexif.dump(exifObj);
 
-        // El estándar PNG eXIf dice que NO debe llevar esa cabecera, debe empezar directo en la cabecera TIFF ("II" o "MM").
-        // Así que recortamos los primeros 6 caracteres ("E", "x", "i", "f", "\0", "\0")
+        // The PNG eXIf standard specifies it must NOT carry that header; it must start directly at the TIFF header ("II" or "MM").
+        // So we slice off the first 6 characters ("E", "x", "i", "f", "\0", "\0")
         const cleanExifString = exifBytesString.substring(6);
 
-        // Convertir la cadena binaria a un arreglo de bytes reales
+        // Convert the binary string to a real byte array
         const exifData = new Uint8Array(cleanExifString.length);
         for (let i = 0; i < cleanExifString.length; i++) {
           exifData[i] = cleanExifString.charCodeAt(i);
         }
 
-        // Crear el nuevo fragmento oficial de PNG
+        // Create the new official PNG chunk
         const newExifChunk = {
           name: "eXIf",
           data: exifData,
         };
 
-        // 5. Inyectar: El estándar recomienda poner el eXIf justo antes de los píxeles (IDAT)
+        // 5. Inject: The standard recommends placing eXIf right before pixels (IDAT)
         const idatIndex = chunks.findIndex(
           (c: { name: string; data: Uint8Array }) => c.name === "IDAT",
         );
         chunks.splice(idatIndex !== -1 ? idatIndex : 1, 0, newExifChunk);
       }
 
-      // 6. Reconstruir el archivo PNG uniendo los pedazos
+      // 6. Rebuild the PNG file by joining the pieces
       const newBuffer = encodeChunks(chunks);
 
-      // 7. Forzar la descarga
+      // 7. Force the download
       const blob = new Blob([newBuffer.buffer as ArrayBuffer], {
         type: "image/png",
       });
@@ -355,7 +355,7 @@ export default function MetadataEditor() {
       const arrayBuffer = await imageFile!.arrayBuffer();
       const dataView = new DataView(arrayBuffer);
 
-      // 1. Validar que sea un contenedor RIFF WEBP real
+      // 1. Validate that it is a real RIFF WEBP container
       if (
         dataView.getUint32(0, false) !== 0x52494646 ||
         dataView.getUint32(8, false) !== 0x57454250
@@ -364,12 +364,12 @@ export default function MetadataEditor() {
         return;
       }
 
-      // 2. Extraer todos los fragmentos (Chunks)
+      // 2. Extract all chunks
       let chunks: { id: string; size: number; payload: Uint8Array }[] = [];
-      let offset = 12; // Saltamos la cabecera "RIFF" (4) + tamaño (4) + "WEBP" (4)
+      let offset = 12; // Skip header "RIFF" (4) + size (4) + "WEBP" (4)
 
       while (offset < arrayBuffer.byteLength) {
-        // Leer el ID del fragmento (ej. 'VP8X', 'EXIF', 'XMP ')
+        // Read chunk ID (e.g. 'VP8X', 'EXIF', 'XMP ')
         const id = String.fromCharCode(
           dataView.getUint8(offset),
           dataView.getUint8(offset + 1),
@@ -377,21 +377,21 @@ export default function MetadataEditor() {
           dataView.getUint8(offset + 3),
         );
 
-        // Leer el tamaño (WebP usa Little Endian)
+        // Read size (WebP uses Little Endian)
         const size = dataView.getUint32(offset + 4, true);
-        const paddedSize = size + (size % 2); // Si el tamaño es impar, WebP añade 1 byte de relleno
+        const paddedSize = size + (size % 2); // If size is odd, WebP adds a 1-byte padding
 
-        // Extraer los datos puros
+        // Extract raw payload
         const payload = new Uint8Array(arrayBuffer, offset + 8, size);
         chunks.push({ id, size, payload });
 
         offset += 8 + paddedSize;
       }
 
-      // 3. LIMPIEZA: Filtramos y borramos los metadatos antiguos
+      // 3. CLEANUP: Filter and remove old metadata
       chunks = chunks.filter((c) => c.id !== "EXIF" && c.id !== "XMP ");
 
-      // 4. EVALUAR MODIFICACIÓN O BORRADO
+      // 4. EVALUATE MODIFICATION OR WIPING
       const isScrubbed =
         !formData.Make &&
         !formData.Model &&
@@ -402,7 +402,7 @@ export default function MetadataEditor() {
         !formData.DateTimeOriginal;
 
       if (!isScrubbed) {
-        // Construimos el nuevo objeto EXIF
+        // Build the new EXIF object
         const exifObj: any = { "0th": {}, Exif: {}, GPS: {}, "1st": {} };
 
         if (formData.Make) exifObj["0th"][piexif.ImageIFD.Make] = formData.Make;
@@ -432,7 +432,7 @@ export default function MetadataEditor() {
           exifObj["GPS"][piexif.GPSIFD.GPSVersionID] = [2, 2, 0, 0];
         }
 
-        // Generamos los bytes. Igual que en PNG, quitamos "Exif\0\0" para ajustarnos al estándar
+        // Generate bytes. Just like in PNG, we remove "Exif\0\0" to comply with the standard
         const exifBytesString = piexif.dump(exifObj);
         const cleanExifString = exifBytesString.substring(6);
 
@@ -441,22 +441,22 @@ export default function MetadataEditor() {
           exifData[i] = cleanExifString.charCodeAt(i);
         }
 
-        // Inyectar el nuevo fragmento EXIF al final
+        // Inject the new EXIF chunk at the end
         chunks.push({ id: "EXIF", size: exifData.length, payload: exifData });
 
-        // Ajuste Experto: Si existe el fragmento VP8X (Extended WebP), debemos encender el "Bit EXIF"
+        // Expert Adjustment: If VP8X chunk (Extended WebP) exists, we must set the "EXIF Bit"
         if (chunks[0].id === "VP8X") {
-          chunks[0].payload[0] |= 0x08; // El 4to bit indica presencia de EXIF
+          chunks[0].payload[0] |= 0x08; // The 4th bit indicates EXIF presence
         }
       } else {
-        // Si borramos todo y hay un VP8X, apagamos el "Bit EXIF" para que sea un archivo perfecto
+        // If we wipe everything and there is a VP8X, we unset the "EXIF Bit" for a clean file
         if (chunks.length > 0 && chunks[0].id === "VP8X") {
           chunks[0].payload[0] &= ~0x08;
         }
       }
 
-      // 5. RECONSTRUIR EL ARCHIVO WEBP
-      let totalSize = 4; // Contamos los 4 bytes de la palabra "WEBP"
+      // 5. REBUILD THE WEBP FILE
+      let totalSize = 4; // Count the 4 bytes of the word "WEBP"
       chunks.forEach((c) => {
         totalSize += 8 + c.size + (c.size % 2);
       });
@@ -465,30 +465,30 @@ export default function MetadataEditor() {
       const newDataView = new DataView(newBuffer);
       const newUint8Array = new Uint8Array(newBuffer);
 
-      // Escribimos la cabecera principal
+      // Write the main header
       newDataView.setUint32(0, 0x52494646, false); // "RIFF"
-      newDataView.setUint32(4, totalSize, true); // Tamaño total (Little Endian)
+      newDataView.setUint32(4, totalSize, true); // Total size (Little Endian)
       newDataView.setUint32(8, 0x57454250, false); // "WEBP"
 
-      // Volvemos a pegar los vagones (fragmentos)
+      // Reassemble the chunks
       let currentOffset = 12;
       chunks.forEach((c) => {
-        // ID del fragmento
+        // Chunk ID
         for (let i = 0; i < 4; i++)
           newUint8Array[currentOffset + i] = c.id.charCodeAt(i);
-        // Tamaño
+        // Size
         newDataView.setUint32(currentOffset + 4, c.size, true);
-        // Datos
+        // Payload
         newUint8Array.set(c.payload, currentOffset + 8);
 
         currentOffset += 8 + c.size;
-        // Si es impar, el buffer ya tiene ceros por defecto, solo sumamos 1 al offset
+        // If odd, the buffer has zeros by default; we just increment offset by 1
         if (c.size % 2 !== 0) {
           currentOffset++;
         }
       });
 
-      // 6. Descargar el archivo final
+      // 6. Download final file
       const blob = new Blob([newBuffer], { type: "image/webp" });
       forzarDescargaBrowser(blob, "webp");
     } catch (error) {
@@ -540,7 +540,7 @@ export default function MetadataEditor() {
 
   const isSupported = supportedImage(imageFile);
 
-  // Variables para controlar la renderización del mapa
+  // Variables to control map rendering
   const { latNum, lngNum, validCoordinates } = hasValidCoordinates(
     formData.latitude,
     formData.longitude,
@@ -548,7 +548,7 @@ export default function MetadataEditor() {
 
   return (
     <div className="absolute bottom-4 right-4 flex flex-col w-full max-w-md mx-auto h-160 bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden animate-in fade-in slide-in-from-bottom-4 z-20">
-      {/* Cabecera */}
+      {/* Header */}
       <div className="bg-gray-200 border-b border-gray-200 px-6 py-4 shrink-0 flex flex-col items-start justify-between gap-4">
         <div>
           <h2 className="text-xl font-semibold text-gray-800">
@@ -572,7 +572,7 @@ export default function MetadataEditor() {
           </button>
         </div>
       </div>
-      {/* Contenido */}
+      {/* Content */}
       <div className="p-6 h-full overflow-auto">
         {!hasMetadata && (
           <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-lg flex items-start gap-3">
@@ -584,7 +584,7 @@ export default function MetadataEditor() {
           </div>
         )}
         <div className="grid grid-cols-1 gap-8">
-          {/* Categoría: Cámara */}
+          {/* Category: Camera */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-gray-700 border-b pb-2">
               <Camera aria-hidden="true" className="w-5 h-5 text-blue-500" />
@@ -646,7 +646,7 @@ export default function MetadataEditor() {
               </div>
             </div>
           </div>
-          {/* Categoría: Autoría */}
+          {/* Category: Authorship */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-gray-700 border-b pb-2">
               <User aria-hidden="true" className="w-5 h-5 text-green-500" />
@@ -691,15 +691,15 @@ export default function MetadataEditor() {
               </div>
             </div>
           </div>
-          {/* Categoría: Ubicación */}
+          {/* Category: Location */}
           <div className="space-y-4">
-            {/* lg:col-span-3 hace que la ubicación ocupe todo el ancho en pantallas grandes para que el mapa se vea mejor */}
+            {/* lg:col-span-3 makes location take full width on large screens for a better map view */}
             <div className="flex items-center gap-2 text-gray-700 border-b pb-2">
               <MapPin aria-hidden="true" className="w-5 h-5 text-purple-500" />
               <h3 className="font-medium">{t("metadataEditor.sectionGps")}</h3>
             </div>
             <div className="flex flex-col gap-6">
-              {/* Inputs de coordenadas */}
+              {/* Coordinate inputs */}
               <div className="w-full space-y-3">
                 <div>
                   <label
@@ -736,7 +736,7 @@ export default function MetadataEditor() {
                   />
                 </div>
               </div>
-              {/* El Mapa interactivo */}
+              {/* Interactive Map */}
               <div className="w-full h-48 bg-gray-100 rounded-lg border border-gray-300 overflow-hidden relative z-0">
                 {validCoordinates ? (
                   <MapContainer
@@ -769,13 +769,13 @@ export default function MetadataEditor() {
               </div>
             </div>
           </div>
-          {/* SECCIÓN DE DATOS EXTRA (Colapsable) */}
+          {/* EXTRA DATA SECTION (Collapsible) */}
           {datosExtra.length > 0 && (
             <div className="">
               <details className="group rounded-lg border border-gray-200">
                 <summary className="flex flex-col justify-between space-y-2 cursor-pointer p-4 font-semibold text-gray-700 select-none">
                   <p className="flex items-center justify-between gap-2">
-                    {/* Puedes importar el icono Info o FileText de lucide-react */}
+                    {/* You can import Info or FileText icon from lucide-react */}
                     {t("metadataEditor.advancedData")}
                     <ChevronDown
                       aria-hidden="true"
@@ -792,7 +792,7 @@ export default function MetadataEditor() {
                 <div className="p-4 border-t border-gray-200">
                   <div className="grid gap-x-4 gap-y-2">
                     {datosExtra.map(([key, value], index) => {
-                      // Formateamos el valor para que se vea bien
+                      // Format the value for proper display
                       const displayValue = value;
 
                       return (

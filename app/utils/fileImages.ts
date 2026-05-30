@@ -1,6 +1,6 @@
 import { generateReadableFileName } from "./randonName";
 
-// Función auxiliar para descargar JPEGs reconstruidos
+// Helper function to download reconstructed JPEGs
 export const descargarBlob = (base64Data: string, mimeType: string) => {
   const byteString = atob(base64Data.split(",")[1]);
   const ab = new ArrayBuffer(byteString.length);
@@ -11,7 +11,7 @@ export const descargarBlob = (base64Data: string, mimeType: string) => {
   forzarDescargaBrowser(blob, "jpg");
 };
 
-// El disparador visual de la descarga en el navegador
+// The visual trigger for the download in the browser
 export const forzarDescargaBrowser = (blob: Blob, extension: string) => {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");

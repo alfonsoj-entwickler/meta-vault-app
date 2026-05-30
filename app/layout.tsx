@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   description: en.seo.description,
   keywords: en.seo.keywords,
   alternates: {
-    canonical: "http://localhost:3000/", // La URL principal o por defecto
+    canonical: "http://localhost:3000/", // The main or default URL
     languages: {
       "es-ES": "http://localhost:3000/",
       "en-US": "http://localhost:3000/",
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     images: ["/images/og-image.jpg"],
     creator: "@tu_usuario_twitter",
   },
-  // 4. Iconos y Manifest (PWA / Navegadores)
+  // 4. Icons and Manifest (PWA / Browsers)
   icons: {
     icon: "/favicon.ico",
     shortcut: "/images/favicon-32x32.png",
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
   },
   manifest: "http://localhost:3000/manifest.json",
 
-  // 5. Robots e Indexación detallada
+  // 5. Robots and detailed Indexing
   robots: {
     index: true,
     follow: true,

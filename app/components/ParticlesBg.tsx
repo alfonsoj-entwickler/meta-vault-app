@@ -8,36 +8,36 @@ import type { ISourceOptions } from "@tsparticles/engine";
 export default function ParticlesBg() {
   const [init, setInit] = useState(false);
 
-  // Esta función inicializa el motor de tsParticles una sola vez
+  // This function initializes the tsParticles engine only once
   useEffect(() => {
     initParticlesEngine(async (engine) => {
-      // loadSlim añade las características básicas (nodos y líneas conectadas)
+      // loadSlim adds the basic features (nodes and connected lines)
       await loadSlim(engine);
     }).then(() => {
       setInit(true);
     });
   }, []);
 
-  // CONFIGURACIÓN ULTRA-SMOOTH DE BURBUJAS
+  // ULTRA-SMOOTH BUBBLE CONFIGURATION
   const options: ISourceOptions = {
-    fpsLimit: 60, // Crucial para pantallas de alta tasa de refresco (smoothness)
+    fpsLimit: 60, // Crucial for high refresh rate screens (smoothness)
     particles: {
       number: {
-        value: 60, // Cantidad equilibrada para que no sature la pantalla
+        value: 60, // Balanced amount so as not to saturate the screen
         density: {
           enable: true,
-          // area: 800 // Controla la dispersión
+          // area: 800 // Controls dispersion
         },
       },
       color: {
-        // Combinación de blanco puro con sutiles tonos azulados/celestes
+        // Combination of soft light/greenish tones
         value: ["#eeffed", "#a6ffa1", "#8dfa87"],
       },
       shape: {
-        type: "circle", // Forma de burbuja
+        type: "circle", // Bubble shape
       },
       opacity: {
-        // Opacidad variable y baja para dar sensación de transparencia líquida
+        // Low and variable opacity to give a liquid transparency feel
         value: { min: 0.1, max: 0.8 },
         animation: {
           enable: true,
@@ -46,7 +46,7 @@ export default function ParticlesBg() {
         },
       },
       size: {
-        // Tamaños variados para simular profundidad
+        // Varied sizes to simulate depth
         value: { min: 15, max: 50 },
         animation: {
           enable: true,
@@ -56,12 +56,12 @@ export default function ParticlesBg() {
       },
       move: {
         enable: true,
-        speed: 1.2, // Velocidad baja = movimiento más elegante y relajante
-        direction: "top", // Las burbujas flotan hacia arriba
-        random: true, // Movimiento no lineal
-        straight: false, // Falso para que tengan ese sutil balanceo "acuático"
+        speed: 1.2, // Low speed = more elegant and relaxing movement
+        direction: "top", // Bubbles float upwards
+        random: true, // Non-linear movement
+        straight: false, // False so they have that subtle "aquatic" swaying
         outModes: {
-          default: "out", // Cuando llegan arriba, desaparecen y reaparecen abajo suavemente
+          default: "out", // When they reach the top, they disappear and smoothly reappear at the bottom
         },
         attract: {
           enable: false,
@@ -72,22 +72,22 @@ export default function ParticlesBg() {
       events: {
         onHover: {
           enable: false,
-          mode: "bubble", // Al pasar el ratón, las burbujas reaccionan inflándose
+          mode: "bubble", // On hover, bubbles react by inflating
         },
         onClick: {
           enable: false,
-          mode: "push", // Al hacer clic se liberan más burbujas
+          mode: "push", // On click, more bubbles are released
         },
       },
       modes: {
         bubble: {
-          distance: 180, // Radio de acción del ratón
-          size: 24, // Tamaño al que se inflan las burbujas
+          distance: 180, // Mouse interaction radius
+          size: 24, // Size to which bubbles inflate
           duration: 0.4,
-          opacity: 0.7, // Se vuelven un poco más visibles al tocarlas
+          opacity: 0.7, // They become a bit more visible when touched
         },
         push: {
-          quantity: 4, // Cuántas burbujas nuevas nacen al hacer clic
+          quantity: 4, // Number of new bubbles generated on click
         },
       },
     },
