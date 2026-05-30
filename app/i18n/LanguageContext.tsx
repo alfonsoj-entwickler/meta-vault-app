@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import en from "./locales/en.json";
 import es from "./locales/es.json";
 import de from "./locales/de.json";
@@ -21,13 +21,6 @@ const LanguageContext = createContext<LanguageContextValue | null>(null);
 const SUPPORTED: Language[] = ["en", "es", "de", "zh"];
 const STORAGE_KEY = "meta-vault-lang";
 
-function detectBrowserLanguage(): Language {
-  // navigator.language returns tags like "es-ES" or "zh-CN" — we only need the base code
-  const lang = (typeof navigator !== "undefined" ? navigator.language : "en")
-    .split("-")[0];
-  return SUPPORTED.includes(lang as Language) ? (lang as Language) : "en";
-}
-
 // Walks a nested JSON object using a dot-separated key (e.g. "metadataEditor.labelMake").
 // Returns the key itself as a fallback so missing translations are visible in the UI.
 function resolve(obj: unknown, key: string): string {
@@ -38,13 +31,22 @@ function resolve(obj: unknown, key: string): string {
 }
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  // Lazy initializer: runs only on the client (typeof window guard makes it SSR-safe).
-  // Priority: user's saved preference → browser language → "en"
-  const [language, setLang] = useState<Language>(() => {
-    if (typeof window === "undefined") return "en";
+  // Start with "en" — this must match the static HTML generated at build time.
+  // Reading localStorage here (synchronously during hydration) would produce a
+  // different value than the server rendered, causing a React hydration error.
+  const [language, setLang] = useState<Language>("en");
+
+  // After hydration completes, silently update to the user's saved preference.
+  // useEffect only runs on the client, so it never conflicts with the static HTML.
+  // localStorage has no subscription API, so a direct setState is the only option —
+  // the rule is suppressed here because this is a one-time post-hydration sync.
+  useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY) as Language | null;
-    return saved && SUPPORTED.includes(saved) ? saved : detectBrowserLanguage();
-  });
+    if (saved && SUPPORTED.includes(saved)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setLang(saved);
+    }
+  }, []);
 
   const setLanguage = (lang: Language) => {
     setLang(lang);
