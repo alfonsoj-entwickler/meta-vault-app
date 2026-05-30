@@ -4,10 +4,10 @@ import Image from "next/image";
 import { useCallback, useState } from "react";
 import { useDropzone, FileRejection } from "react-dropzone";
 import { useImageStore } from "../store/useImageStore";
-import { X, AlertCircle } from "lucide-react";
 import ExifReader from "exifreader";
 import { useTranslation } from "../i18n/LanguageContext";
 import { validateMagicBytes } from "../utils/validateMagicBytes";
+import { toast } from "react-toastify";
 
 // Definimos los límites en constantes para facilitar su mantenimiento
 const MAX_FILE_SIZE_MB = 20;
@@ -31,6 +31,7 @@ export default function FileDropZone() {
         const isValidImage = await validateMagicBytes(file);
         if (!isValidImage) {
           setErrorMessage(t("fileDropZone.errorInvalid"));
+          toast.error(t("fileDropZone.errorInvalid"));
           return;
         }
 
@@ -62,6 +63,7 @@ export default function FileDropZone() {
         } catch (error) {
           console.error("Error leyendo imagen con ExifReader", error);
           setErrorMessage(t("fileDropZone.errorCorrupt"));
+          toast.error(t("fileDropZone.errorCorrupt"))
         } finally {
           setIsExtracting(false);
         }
@@ -80,10 +82,13 @@ export default function FileDropZone() {
       // Personalizamos el mensaje de error según el código de la librería
       if (errorCodes.includes("file-too-large")) {
         setErrorMessage(t("fileDropZone.errorSize", { max: MAX_FILE_SIZE_MB }));
+        toast.error(t("fileDropZone.errorSize", { max: MAX_FILE_SIZE_MB }))
       } else if (errorCodes.includes("file-invalid-type")) {
         setErrorMessage(t("fileDropZone.errorFormat"));
+        toast.error(t("fileDropZone.errorFormat"))
       } else {
         setErrorMessage(t("fileDropZone.errorUnknown"));
+        toast.error(t("fileDropZone.errorUnknown"))
       }
     },
     [t],
@@ -105,21 +110,6 @@ export default function FileDropZone() {
   return (
     <div className="group absolute inset-0 z-10 h-screen w-full text-black overflow-hidden">
       <div className="absolute inset-0">
-        {/* Alerta de Error Dinámica */}
-        {errorMessage && (
-          <div className="flex items-center gap-3 bg-red-50 border border-red-200 text-red-700 px-4 py-3 shadow-sm animate-in fade-in slide-in-from-top-2">
-            <AlertCircle className="h-5 w-5 shrink-0" />
-            <p className="text-sm font-medium">{errorMessage}</p>
-            <button
-              onClick={() => setErrorMessage(null)}
-              aria-label={t("fileDropZone.ariaDismiss")}
-              className="ml-auto text-red-400 hover:text-red-700 transition-colors"
-            >
-              <X aria-hidden="true" className="h-4 w-4" />
-            </button>
-          </div>
-        )}
-
         {/* Zona de Dropzone o Visualización */}
         <div
           {...getRootProps()}
