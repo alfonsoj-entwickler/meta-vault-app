@@ -6,31 +6,37 @@ import {
   MapPin,
   Trash2,
   Save,
-  Download,
   AlertTriangle,
   ChevronDown,
 } from "lucide-react";
 import { useImageStore } from "../store/useImageStore";
-// Importamos los componentes de React-Leaflet
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
-// Importar estilos de Leaflet es obligatorio para que el mapa se vea bien
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import piexif from "piexifjs";
 import extractChunks from "png-chunks-extract";
 import encodeChunks from "png-chunks-encode";
+import { toast } from "react-toastify";
 import { safeDate } from "../utils/safeDate";
 import { useTranslation } from "../i18n/LanguageContext";
-import { generateReadableFileName } from "../utils/randonName";
-import { decimalToDMS } from "../utils/formatData";
+import {
+  decimalToDMS,
+  hasValidCoordinates,
+  safeCoordinate,
+} from "../utils/formatData";
+import {
+  descargarBlob,
+  forzarDescargaBrowser,
+  supportedImage,
+} from "../utils/fileImages";
 
 // Leaflet's default marker icons rely on webpack asset handling that Next.js
 // does not provide, so we point directly to the CDN copies instead.
-const iconUrl = "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png";
+const iconUrl = "/images/leaflet/marker-icon.png";
 const iconRetinaUrl =
-  "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png";
+  "/images/leaflet//marker-icon-2x.png";
 const shadowUrl =
-  "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png";
+  "/images/leaflet/marker-shadow.png";
 
 const customIcon = new L.Icon({
   iconUrl,
@@ -49,19 +55,34 @@ function ChangeView({ center }: { center: [number, number] }) {
   return null;
 }
 
+// Module-level helper: builds the controlled-form object from a metadata snapshot.
+// Lives outside the component so it is a stable reference (no re-creation on
+// each render) and never needs to appear in useCallback / useEffect dep arrays.
+type MetaSnapshot = ReturnType<typeof useImageStore.getState>["metadata"];
+function buildFormData(meta: MetaSnapshot) {
+  return {
+    Make: meta?.Make || "",
+    Model: meta?.Model || "",
+    Artist: meta?.Artist || "",
+    Copyright: meta?.Copyright || "",
+    DateTimeOriginal: meta?.DateTimeOriginal
+      ? safeDate(meta.DateTimeOriginal)
+      : "",
+    latitude: safeCoordinate(meta?.latitude),
+    longitude: safeCoordinate(meta?.longitude),
+  };
+}
+
 export default function MetadataEditor() {
   const { metadata, setMetadata, imageFile } = useImageStore();
   const { t } = useTranslation();
 
-  const [formData, setFormData] = useState({
-    Make: "",
-    Model: "",
-    Artist: "",
-    Copyright: "",
-    DateTimeOriginal: "",
-    latitude: "",
-    longitude: "",
-  });
+  // Lazy initializer reads the current store snapshot at mount time.
+  // This handles the case where metadata was already set before this
+  // component mounts (avoids the extra render that useEffect would cause).
+  const [formData, setFormData] = useState(() =>
+    buildFormData(useImageStore.getState().metadata),
+  );
 
   const camposExcluidos = [
     "Make",
@@ -78,53 +99,52 @@ export default function MetadataEditor() {
   // [key, value] list, skipping fields already shown in the editable form.
   const datosExtra: [string, string][] = [];
 
+  // Subscribe to store changes so form fields update whenever a new image is
+  // loaded. Using a Zustand subscription (callback form) instead of a
+  // synchronous setState inside useEffect satisfies react-hooks/set-state-in-effect.
+  // The lazy useState initializer above already covers the initial render, so
+  // this only needs to fire for subsequent metadata changes.
   useEffect(() => {
-    if (metadata) {
-      setFormData({
-        Make: metadata.Make || "",
-        Model: metadata.Model || "",
-        Artist: metadata.Artist || "",
-        Copyright: metadata.Copyright || "",
-        DateTimeOriginal: metadata.DateTimeOriginal
-          ? safeDate(metadata.DateTimeOriginal)
-          : "",
-        latitude: safeCoordinate(metadata.latitude),
-        longitude: safeCoordinate(metadata.longitude),
-      });
-    }
-  }, [metadata]);
+    return useImageStore.subscribe((state) => {
+      if (state.metadata) {
+        setFormData(buildFormData(state.metadata));
+      }
+    });
+  }, []);
 
   if (metadata) {
     // ExifReader agrupa los datos en estas categorías principales
     const grupos = ["exif", "file", "xmp", "iptc"];
 
+    const metaAsRecord = metadata as Record<string, unknown>;
     grupos.forEach((grupo) => {
-      if (metadata[grupo]) {
-        Object.entries(metadata[grupo]).forEach(([key, tag]: [string, any]) => {
-          // Si está en la lista de excluidos, lo saltamos
-          if (camposExcluidos.includes(key)) return;
+      if (metaAsRecord[grupo]) {
+        Object.entries(metaAsRecord[grupo] as Record<string, unknown>).forEach(
+          ([key, tag]) => {
+            // Si está en la lista de excluidos, lo saltamos
+            if (camposExcluidos.includes(key)) return;
 
-          // ExifReader guarda el valor legible en .description o .value
-          const displayValue = tag?.description ?? tag?.value;
+            // ExifReader guarda el valor legible en .description o .value
+            const rawTag = tag as { description?: unknown; value?: unknown };
+            const displayValue = rawTag?.description ?? rawTag?.value;
 
-          // Filtramos buffers binarios (como miniaturas) o datos vacíos
-          if (
-            displayValue !== undefined &&
-            displayValue !== null &&
-            !(displayValue instanceof Uint8Array) &&
-            typeof displayValue !== "object"
-          ) {
-            datosExtra.push([key, String(displayValue)]);
-          }
-        });
+            // Filtramos buffers binarios (como miniaturas) o datos vacíos
+            if (
+              displayValue !== undefined &&
+              displayValue !== null &&
+              !(displayValue instanceof Uint8Array) &&
+              typeof displayValue !== "object"
+            ) {
+              datosExtra.push([key, String(displayValue)]);
+            }
+          },
+        );
       }
     });
   }
 
-  // --- 4. LÓGICA DE EXPORTACIÓN (piexifjs) ---
-  const handleDownload = async () => {
-    if (!imageFile) return;
-
+  const exportarJpeg = async () => {
+    if (!imageFile) return; // imageFile is File | null — nothing to export if null
     const reader = new FileReader();
     reader.onload = function (e) {
       if (!e.target?.result) return;
@@ -212,44 +232,285 @@ export default function MetadataEditor() {
           jpegData = piexif.insert(exifBytes, jpegData);
         }
 
-        // Convertir de nuevo a Blob y forzar descarga
-        const byteString = atob(jpegData.split(",")[1]);
-        const mimeString = jpegData.split(",")[0].split(":")[1].split(";")[0];
-        const ab = new ArrayBuffer(byteString.length);
-        const ia = new Uint8Array(ab);
-        for (let i = 0; i < byteString.length; i++) {
-          ia[i] = byteString.charCodeAt(i);
-        }
-
-        const blob = new Blob([ab], { type: mimeString });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        // const originalName = imageFile.name.replace(/\.[^/.]+$/, "");
-        link.download = generateReadableFileName("jpg");
-
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
+        // Descargar
+        descargarBlob(jpegData, "image/jpeg");
       } catch (error) {
         console.error("Error al procesar la imagen:", error);
-        alert(
-          "Hubo un error al modificar la imagen. Asegúrate de que el formato sea correcto.",
-        );
+        toast.error("Hubo un error al modificar la imagen. Asegúrate de que el formato sea correcto.",)
       }
     };
 
     reader.readAsDataURL(imageFile);
   };
 
-  // ExifReader returns GPS coordinates as plain numbers but the store may also
-  // hold them as strings after manual edits, so we normalize to a fixed-precision
-  // string and treat any non-numeric value as empty.
-  const safeCoordinate = (val: any) => {
-    if (val === undefined || val === null || val === "") return "";
-    const num = Number(val);
-    return isNaN(num) ? "" : num.toFixed(6);
+  const exportarPng = async () => {
+    if (!imageFile) return; // imageFile is File | null — nothing to export if null
+    try {
+      // 1. Leer el archivo directamente a la memoria RAM (ArrayBuffer)
+      const arrayBuffer = await imageFile.arrayBuffer();
+      const buffer = new Uint8Array(arrayBuffer);
+
+      // 2. Extraer todos los fragmentos (chunks) de la imagen
+      let chunks = extractChunks(buffer);
+
+      // 3. LIMPIEZA MÁXIMA: Identificamos los fragmentos que suelen llevar metadatos y los filtramos
+      const chunksNoDeseados = ["tEXt", "zTXt", "iTXt", "eXIf"];
+      chunks = chunks.filter(
+        (chunk: { name: string; data: Uint8Array }) =>
+          !chunksNoDeseados.includes(chunk.name),
+      );
+
+      // Evaluamos si solo queríamos borrar todo o si hay que reescribir
+      const isScrubbed =
+        !formData.Make &&
+        !formData.Model &&
+        !formData.Artist &&
+        !formData.Copyright &&
+        !formData.latitude &&
+        !formData.longitude &&
+        !formData.DateTimeOriginal;
+
+      if (!isScrubbed) {
+        // --- CONSTRUCCIÓN DEL NUEVO EXIF ---
+        // Creamos una estructura EXIF vacía
+        const exifObj: Record<string, Record<number, unknown>> = {
+          "0th": {},
+          Exif: {},
+          GPS: {},
+          "1st": {},
+        };
+
+        // Llenamos el objeto con los datos del formulario (Igual que en el JPEG)
+        if (formData.Make) exifObj["0th"][piexif.ImageIFD.Make] = formData.Make;
+        if (formData.Model)
+          exifObj["0th"][piexif.ImageIFD.Model] = formData.Model;
+        if (formData.Artist)
+          exifObj["0th"][piexif.ImageIFD.Artist] = formData.Artist;
+        if (formData.Copyright)
+          exifObj["0th"][piexif.ImageIFD.Copyright] = formData.Copyright;
+        if (formData.DateTimeOriginal)
+          exifObj["Exif"][piexif.ExifIFD.DateTimeOriginal] =
+            formData.DateTimeOriginal.replace(/-/g, ":").replace("T", " ");
+
+        const latNum = parseFloat(formData.latitude);
+        const lngNum = parseFloat(formData.longitude);
+        if (
+          !isNaN(latNum) &&
+          !isNaN(lngNum) &&
+          formData.latitude !== "" &&
+          formData.longitude !== ""
+        ) {
+          exifObj["GPS"][piexif.GPSIFD.GPSLatitudeRef] = latNum < 0 ? "S" : "N";
+          exifObj["GPS"][piexif.GPSIFD.GPSLatitude] = decimalToDMS(latNum);
+          exifObj["GPS"][piexif.GPSIFD.GPSLongitudeRef] =
+            lngNum < 0 ? "W" : "E";
+          exifObj["GPS"][piexif.GPSIFD.GPSLongitude] = decimalToDMS(lngNum);
+          exifObj["GPS"][piexif.GPSIFD.GPSVersionID] = [2, 2, 0, 0];
+        }
+
+        // 4. EL TRUCO DEL EXPERTO: Ajustar la cabecera para el estándar PNG
+        // piexif.dump() crea la cadena binaria, pero añade la cabecera "Exif\0\0" propia de JPEG
+        const exifBytesString = piexif.dump(exifObj);
+
+        // El estándar PNG eXIf dice que NO debe llevar esa cabecera, debe empezar directo en la cabecera TIFF ("II" o "MM").
+        // Así que recortamos los primeros 6 caracteres ("E", "x", "i", "f", "\0", "\0")
+        const cleanExifString = exifBytesString.substring(6);
+
+        // Convertir la cadena binaria a un arreglo de bytes reales
+        const exifData = new Uint8Array(cleanExifString.length);
+        for (let i = 0; i < cleanExifString.length; i++) {
+          exifData[i] = cleanExifString.charCodeAt(i);
+        }
+
+        // Crear el nuevo fragmento oficial de PNG
+        const newExifChunk = {
+          name: "eXIf",
+          data: exifData,
+        };
+
+        // 5. Inyectar: El estándar recomienda poner el eXIf justo antes de los píxeles (IDAT)
+        const idatIndex = chunks.findIndex(
+          (c: { name: string; data: Uint8Array }) => c.name === "IDAT",
+        );
+        chunks.splice(idatIndex !== -1 ? idatIndex : 1, 0, newExifChunk);
+      }
+
+      // 6. Reconstruir el archivo PNG uniendo los pedazos
+      const newBuffer = encodeChunks(chunks);
+
+      // 7. Forzar la descarga
+      const blob = new Blob([newBuffer.buffer as ArrayBuffer], {
+        type: "image/png",
+      });
+      forzarDescargaBrowser(blob, "png");
+    } catch (error) {
+      console.error("Error procesando PNG:", error);
+      toast.error("Hubo un error al modificar la imagen PNG.");
+    }
+  };
+
+  const exportarWebp = async () => {
+    if (!imageFile) return;
+    try {
+      const arrayBuffer = await imageFile!.arrayBuffer();
+      const dataView = new DataView(arrayBuffer);
+
+      // 1. Validar que sea un contenedor RIFF WEBP real
+      if (
+        dataView.getUint32(0, false) !== 0x52494646 ||
+        dataView.getUint32(8, false) !== 0x57454250
+      ) {
+        toast.error("El archivo no es un WebP válido.");
+        return;
+      }
+
+      // 2. Extraer todos los fragmentos (Chunks)
+      let chunks: { id: string; size: number; payload: Uint8Array }[] = [];
+      let offset = 12; // Saltamos la cabecera "RIFF" (4) + tamaño (4) + "WEBP" (4)
+
+      while (offset < arrayBuffer.byteLength) {
+        // Leer el ID del fragmento (ej. 'VP8X', 'EXIF', 'XMP ')
+        const id = String.fromCharCode(
+          dataView.getUint8(offset),
+          dataView.getUint8(offset + 1),
+          dataView.getUint8(offset + 2),
+          dataView.getUint8(offset + 3),
+        );
+
+        // Leer el tamaño (WebP usa Little Endian)
+        const size = dataView.getUint32(offset + 4, true);
+        const paddedSize = size + (size % 2); // Si el tamaño es impar, WebP añade 1 byte de relleno
+
+        // Extraer los datos puros
+        const payload = new Uint8Array(arrayBuffer, offset + 8, size);
+        chunks.push({ id, size, payload });
+
+        offset += 8 + paddedSize;
+      }
+
+      // 3. LIMPIEZA: Filtramos y borramos los metadatos antiguos
+      chunks = chunks.filter((c) => c.id !== "EXIF" && c.id !== "XMP ");
+
+      // 4. EVALUAR MODIFICACIÓN O BORRADO
+      const isScrubbed =
+        !formData.Make &&
+        !formData.Model &&
+        !formData.Artist &&
+        !formData.Copyright &&
+        !formData.latitude &&
+        !formData.longitude &&
+        !formData.DateTimeOriginal;
+
+      if (!isScrubbed) {
+        // Construimos el nuevo objeto EXIF
+        const exifObj: any = { "0th": {}, Exif: {}, GPS: {}, "1st": {} };
+
+        if (formData.Make) exifObj["0th"][piexif.ImageIFD.Make] = formData.Make;
+        if (formData.Model)
+          exifObj["0th"][piexif.ImageIFD.Model] = formData.Model;
+        if (formData.Artist)
+          exifObj["0th"][piexif.ImageIFD.Artist] = formData.Artist;
+        if (formData.Copyright)
+          exifObj["0th"][piexif.ImageIFD.Copyright] = formData.Copyright;
+        if (formData.DateTimeOriginal)
+          exifObj["Exif"][piexif.ExifIFD.DateTimeOriginal] =
+            formData.DateTimeOriginal.replace(/-/g, ":").replace("T", " ");
+
+        const latNum = parseFloat(formData.latitude);
+        const lngNum = parseFloat(formData.longitude);
+        if (
+          !isNaN(latNum) &&
+          !isNaN(lngNum) &&
+          formData.latitude !== "" &&
+          formData.longitude !== ""
+        ) {
+          exifObj["GPS"][piexif.GPSIFD.GPSLatitudeRef] = latNum < 0 ? "S" : "N";
+          exifObj["GPS"][piexif.GPSIFD.GPSLatitude] = decimalToDMS(latNum);
+          exifObj["GPS"][piexif.GPSIFD.GPSLongitudeRef] =
+            lngNum < 0 ? "W" : "E";
+          exifObj["GPS"][piexif.GPSIFD.GPSLongitude] = decimalToDMS(lngNum);
+          exifObj["GPS"][piexif.GPSIFD.GPSVersionID] = [2, 2, 0, 0];
+        }
+
+        // Generamos los bytes. Igual que en PNG, quitamos "Exif\0\0" para ajustarnos al estándar
+        const exifBytesString = piexif.dump(exifObj);
+        const cleanExifString = exifBytesString.substring(6);
+
+        const exifData = new Uint8Array(cleanExifString.length);
+        for (let i = 0; i < cleanExifString.length; i++) {
+          exifData[i] = cleanExifString.charCodeAt(i);
+        }
+
+        // Inyectar el nuevo fragmento EXIF al final
+        chunks.push({ id: "EXIF", size: exifData.length, payload: exifData });
+
+        // Ajuste Experto: Si existe el fragmento VP8X (Extended WebP), debemos encender el "Bit EXIF"
+        if (chunks[0].id === "VP8X") {
+          chunks[0].payload[0] |= 0x08; // El 4to bit indica presencia de EXIF
+        }
+      } else {
+        // Si borramos todo y hay un VP8X, apagamos el "Bit EXIF" para que sea un archivo perfecto
+        if (chunks.length > 0 && chunks[0].id === "VP8X") {
+          chunks[0].payload[0] &= ~0x08;
+        }
+      }
+
+      // 5. RECONSTRUIR EL ARCHIVO WEBP
+      let totalSize = 4; // Contamos los 4 bytes de la palabra "WEBP"
+      chunks.forEach((c) => {
+        totalSize += 8 + c.size + (c.size % 2);
+      });
+
+      const newBuffer = new ArrayBuffer(8 + totalSize);
+      const newDataView = new DataView(newBuffer);
+      const newUint8Array = new Uint8Array(newBuffer);
+
+      // Escribimos la cabecera principal
+      newDataView.setUint32(0, 0x52494646, false); // "RIFF"
+      newDataView.setUint32(4, totalSize, true); // Tamaño total (Little Endian)
+      newDataView.setUint32(8, 0x57454250, false); // "WEBP"
+
+      // Volvemos a pegar los vagones (fragmentos)
+      let currentOffset = 12;
+      chunks.forEach((c) => {
+        // ID del fragmento
+        for (let i = 0; i < 4; i++)
+          newUint8Array[currentOffset + i] = c.id.charCodeAt(i);
+        // Tamaño
+        newDataView.setUint32(currentOffset + 4, c.size, true);
+        // Datos
+        newUint8Array.set(c.payload, currentOffset + 8);
+
+        currentOffset += 8 + c.size;
+        // Si es impar, el buffer ya tiene ceros por defecto, solo sumamos 1 al offset
+        if (c.size % 2 !== 0) {
+          currentOffset++;
+        }
+      });
+
+      // 6. Descargar el archivo final
+      const blob = new Blob([newBuffer], { type: "image/webp" });
+      forzarDescargaBrowser(blob, "webp");
+    } catch (error) {
+      console.error("Error procesando WebP:", error);
+      toast.error("Hubo un error al modificar la imagen WebP.");
+    }
+  };
+
+  const handleDownload = async () => {
+    if (!imageFile) return;
+
+    const extension = imageFile.type.split("/")[1];
+
+    if (extension === "jpeg" || extension === "jpg") {
+      await exportarJpeg();
+    } else if (extension === "png") {
+      await exportarPng();
+    } else if (extension === 'webp') {
+      await exportarWebp();
+    } else {
+      toast.error("La modificación para este formato está en desarrollo.");
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -277,17 +538,13 @@ export default function MetadataEditor() {
 
   const hasMetadata = Object.keys(metadata).length > 0;
 
-  const isJpeg =
-    imageFile?.type === "image/jpeg" || imageFile?.type === "image/jpg";
+  const isSupported = supportedImage(imageFile);
 
   // Variables para controlar la renderización del mapa
-  const latNum = parseFloat(formData.latitude);
-  const lngNum = parseFloat(formData.longitude);
-  const hasValidCoordinates =
-    !isNaN(latNum) &&
-    !isNaN(lngNum) &&
-    formData.latitude !== "" &&
-    formData.longitude !== "";
+  const { latNum, lngNum, validCoordinates } = hasValidCoordinates(
+    formData.latitude,
+    formData.longitude,
+  );
 
   return (
     <div className="absolute bottom-4 right-4 flex flex-col w-full max-w-md mx-auto h-160 bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden animate-in fade-in slide-in-from-bottom-4 z-20">
@@ -481,7 +738,7 @@ export default function MetadataEditor() {
               </div>
               {/* El Mapa interactivo */}
               <div className="w-full h-48 bg-gray-100 rounded-lg border border-gray-300 overflow-hidden relative z-0">
-                {hasValidCoordinates ? (
+                {validCoordinates ? (
                   <MapContainer
                     center={[latNum, lngNum]}
                     zoom={13}
@@ -561,20 +818,19 @@ export default function MetadataEditor() {
       </div>
       {/* Footer */}
       <div className="shrink-0 bg-gray-200 border-t border-gray-200 px-6 py-4 flex flex-col gap-3 z-10 relative">
-        {!isJpeg && (
+        {!isSupported && (
           <p className="flex items-center gap-2 text-sm text-amber-600 bg-amber-50 px-3 py-2 rounded-md">
             <AlertTriangle className="w-4 h-4" />
-            La modificación de metadatos local solo está disponible para JPEGs.
+            Solo se soporta la modificación de imágenes JPG, PNG y WebP.
           </p>
         )}
         <button
           onClick={handleDownload}
-          disabled={!isJpeg}
+          disabled={!isSupported}
           className={`flex justify-center items-center gap-2 px-6 py-3 rounded-lg font-medium shadow-sm cursor-pointer transition-all transform
-            ${
-              isJpeg
-                ? "bg-blue-600 text-white hover:bg-blue-700 hover:-translate-y-0.5"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            ${isSupported
+              ? "bg-blue-600 text-white hover:bg-blue-700 hover:-translate-y-0.5"
+              : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }
           `}
         >
