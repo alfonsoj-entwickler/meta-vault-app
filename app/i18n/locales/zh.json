@@ -60,6 +60,11 @@
     "advancedData": "高级数据（只读）",
     "fieldCount": "{{count}} 个字段",
     "btnUpdate": "更新预览",
-    "btnDownload": "下载修改后的图片"
+    "btnDownload": "下载修改后的图片",
+    "errorModify": "修改图片时出错。请确保格式正确。",
+    "errorModifyPng": "修改 PNG 图片时出错。",
+    "errorInvalidWebp": "文件不是有效的 WebP。",
+    "errorModifyWebp": "修改 WebP 图片时出错。",
+    "errorFormatUnsupported": "该格式的修改正在开发中。"
   }
 }

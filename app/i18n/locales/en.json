@@ -2,7 +2,12 @@
   "fileDropZone": {
     "heading": "Vault Metadata",
     "subheading": "Image Metadata:",
-    "features": ["GPS coordinates", "Orientation", "Thumbnail", "Camera"],
+    "features": [
+      "Exact location",
+      "Device footprint",
+      "Invisible timeline",
+      "Editing history"
+    ],
     "dropActive": "Drop image here!",
     "dropIdle": "Drop OR Click here!",
     "sizeLabel": "JPG, PNG and WebP (Maximum {{max}}MB)",
@@ -26,7 +31,14 @@
   },
   "seo": {
     "description": "Meta Vault lets you view and edit EXIF, IPTC and GPS metadata embedded in your photos. Inspect, modify and clean image metadata with ease.",
-    "keywords": ["EXIF", "image metadata", "photo editor", "GPS", "copyright", "IPTC"],
+    "keywords": [
+      "EXIF",
+      "image metadata",
+      "photo editor",
+      "GPS",
+      "copyright",
+      "IPTC"
+    ],
     "ogLocale": "en_US",
     "ogImageAlt": "Meta Vault logo"
   },
@@ -60,6 +72,11 @@
     "advancedData": "Advanced Data (Read only)",
     "fieldCount": "{{count}} fields",
     "btnUpdate": "Update Preview",
-    "btnDownload": "Download Modified Image"
+    "btnDownload": "Download Modified Image",
+    "errorModify": "There was an error modifying the image. Make sure the format is correct.",
+    "errorModifyPng": "There was an error modifying the PNG image.",
+    "errorInvalidWebp": "The file is not a valid WebP.",
+    "errorModifyWebp": "There was an error modifying the WebP image.",
+    "errorFormatUnsupported": "Modification for this format is under development."
   }
 }

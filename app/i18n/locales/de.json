@@ -60,6 +60,11 @@
     "advancedData": "Erweiterte Daten (Nur lesen)",
     "fieldCount": "{{count}} Felder",
     "btnUpdate": "Vorschau aktualisieren",
-    "btnDownload": "Bearbeitetes Bild herunterladen"
+    "btnDownload": "Bearbeitetes Bild herunterladen",
+    "errorModify": "Beim Ändern des Bildes ist ein Fehler aufgetreten. Stellen Sie sicher, dass das Format korrekt ist.",
+    "errorModifyPng": "Beim Ändern des PNG-Bildes ist ein Fehler aufgetreten.",
+    "errorInvalidWebp": "Die Datei ist kein gültiges WebP.",
+    "errorModifyWebp": "Beim Ändern des WebP-Bildes ist ein Fehler aufgetreten.",
+    "errorFormatUnsupported": "Die Bearbeitung für dieses Format befindet sich in Entwicklung."
   }
 }
