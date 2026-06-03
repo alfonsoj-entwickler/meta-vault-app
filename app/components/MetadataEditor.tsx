@@ -236,7 +236,7 @@ export default function MetadataEditor() {
         descargarBlob(jpegData, "image/jpeg");
       } catch (error) {
         console.error("Error al procesar la imagen:", error);
-        toast.error("Hubo un error al modificar la imagen. Asegúrate de que el formato sea correcto.",)
+        toast.error(t("metadataEditor.errorModify"));
       }
     };
 
@@ -345,7 +345,7 @@ export default function MetadataEditor() {
       forzarDescargaBrowser(blob, "png");
     } catch (error) {
       console.error("Error procesando PNG:", error);
-      toast.error("Hubo un error al modificar la imagen PNG.");
+      toast.error(t("metadataEditor.errorModifyPng"));
     }
   };
 
@@ -360,7 +360,7 @@ export default function MetadataEditor() {
         dataView.getUint32(0, false) !== 0x52494646 ||
         dataView.getUint32(8, false) !== 0x57454250
       ) {
-        toast.error("El archivo no es un WebP válido.");
+        toast.error(t("metadataEditor.errorInvalidWebp"));
         return;
       }
 
@@ -493,7 +493,7 @@ export default function MetadataEditor() {
       forzarDescargaBrowser(blob, "webp");
     } catch (error) {
       console.error("Error procesando WebP:", error);
-      toast.error("Hubo un error al modificar la imagen WebP.");
+      toast.error(t("metadataEditor.errorModifyWebp"));
     }
   };
 
@@ -509,7 +509,7 @@ export default function MetadataEditor() {
     } else if (extension === 'webp') {
       await exportarWebp();
     } else {
-      toast.error("La modificación para este formato está en desarrollo.");
+      toast.error(t("metadataEditor.errorFormatUnsupported"));
     }
   };
 
@@ -710,7 +710,10 @@ export default function MetadataEditor() {
                   </label>
                   <input
                     id="field-latitude"
-                    type="text"
+                    type="number"
+                    step="any"
+                    min="-90"
+                    max="90"
                     name="latitude"
                     value={formData.latitude}
                     onChange={handleChange}
@@ -727,7 +730,10 @@ export default function MetadataEditor() {
                   </label>
                   <input
                     id="field-longitude"
-                    type="text"
+                    type="number"
+                    step="any"
+                    min="-180"
+                    max="180"
                     name="longitude"
                     value={formData.longitude}
                     onChange={handleChange}
