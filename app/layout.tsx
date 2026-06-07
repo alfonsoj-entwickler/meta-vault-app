@@ -4,6 +4,8 @@ import "./globals.css";
 import { LanguageProvider } from "./i18n/LanguageContext";
 import LanguageSelector from "./components/LanguageSelector";
 import en from "./i18n/locales/en.json";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // This is a static export (output: "export") — there is no runtime server.
 // Metadata is generated once at build time, so we always use English here.
@@ -107,6 +109,7 @@ export default function RootLayout({
             Skip to main content
           </a>
           <main id="main-content">{children}</main>
+          <ToastContainer position="top-right" autoClose={4000} />
         </LanguageProvider>
       </body>
     </html>
