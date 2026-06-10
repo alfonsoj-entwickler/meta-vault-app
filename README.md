@@ -1,2 +1,1 @@
-# meta-vault-app
-meta-vault-app
+## Meta Vault APP
