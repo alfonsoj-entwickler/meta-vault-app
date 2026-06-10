@@ -50,6 +50,8 @@ export default function FileDropZone() {
             Make: tags.exif?.Make?.description || "",
             Model: tags.exif?.Model?.description || "",
             DateTimeOriginal: tags.exif?.DateTimeOriginal?.description || "",
+            Artist: tags.exif?.Artist?.description || tags.image?.Artist?.description || "",
+            Copyright: tags.exif?.Copyright?.description || tags.image?.Copyright?.description || "",
 
             // ¡El salvavidas para los Google Pixel! ExifReader formatea el GPS perfectamente
             latitude: tags.gps?.Latitude ? tags.gps.Latitude : "",
