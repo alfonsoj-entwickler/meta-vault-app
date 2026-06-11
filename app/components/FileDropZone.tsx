@@ -164,11 +164,11 @@ export default function FileDropZone() {
 
         <div className="flex flex-col justify-center items-center gap-8 w-full h-60 bg-green-600 text-white">
           <p className="text-lg font-bold">{t("fileDropZone.subheading")}</p>
-          <ul className="flex gap-4 text-xl">
-            <li className="flex items-start gap-3"><MapPin className="w-5 h-5 shrink-0 mt-0.5" />{t("fileDropZone.features.0")}</li>
-            <li className="flex items-start gap-3"><Smartphone className="w-5 h-5 shrink-0 mt-0.5" />{t("fileDropZone.features.1")}</li>
-            <li className="flex items-start gap-3"><Clock className="w-5 h-5 shrink-0 mt-0.5" />{t("fileDropZone.features.2")}</li>
-            <li className="flex items-start gap-3"><Sliders className="w-5 h-5 shrink-0 mt-0.5" />{t("fileDropZone.features.3")}</li>
+          <ul className="flex gap-5 text-xl leading-normal">
+            <li className="flex items-center gap-1.5"><MapPin className="w-5 h-5 shrink-0 mt-0.5" />{t("fileDropZone.features.0")}</li>
+            <li className="flex items-center gap-1.5"><Smartphone className="w-5 h-5 shrink-0 mt-0.5" />{t("fileDropZone.features.1")}</li>
+            <li className="flex items-center gap-1.5"><Clock className="w-5 h-5 shrink-0 mt-0.5" />{t("fileDropZone.features.2")}</li>
+            <li className="flex items-center gap-1.5"><Sliders className="w-5 h-5 shrink-0 mt-0.5" />{t("fileDropZone.features.3")}</li>
           </ul>
         </div>
       </div>
