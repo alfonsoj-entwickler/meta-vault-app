@@ -150,7 +150,7 @@ export default function ImageMetaData() {
             src={previewUrl ?? ""}
             alt="Preview"
             fill
-            className="object-contain rounded-lg"
+            className="object-contain max-w-5xl mx-auto p-10 sm:p-20"
             unoptimized
           />
         )}
