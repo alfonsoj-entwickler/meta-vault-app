@@ -97,7 +97,7 @@ export default function ParticlesBg() {
   if (!init) return null;
 
   return (
-    <div className="absolute inset-0 z-0 h-full w-full">
+    <div className="relative inset-0 z-0 h-full w-full">
       <Particles
         id="tsparticles"
         className="w-full h-full"
