@@ -5,10 +5,23 @@ import en from "./locales/en.json";
 import es from "./locales/es.json";
 import de from "./locales/de.json";
 import zh from "./locales/zh.json";
+import ja from "./locales/ja.json";
+import fr from "./locales/fr.json";
+import ptBr from "./locales/pt-br.json";
+import hi from "./locales/hi.json";
 
-export type Language = "en" | "es" | "de" | "zh";
+export type Language = "en" | "es" | "de" | "zh" | "ja" | "fr" | "pt-BR" | "hi";
 
-const dictionaries = { en, es, de, zh } as const;
+const dictionaries = {
+  en,
+  es,
+  de,
+  zh,
+  ja,
+  fr,
+  "pt-BR": ptBr,
+  hi,
+} as const;
 
 interface LanguageContextValue {
   language: Language;
@@ -18,7 +31,16 @@ interface LanguageContextValue {
 
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
-const SUPPORTED: Language[] = ["en", "es", "de", "zh"];
+const SUPPORTED: Language[] = [
+  "en",
+  "es",
+  "de",
+  "zh",
+  "ja",
+  "fr",
+  "pt-BR",
+  "hi",
+];
 const STORAGE_KEY = "meta-vault-lang";
 
 // Walks a nested JSON object using a dot-separated key (e.g. "metadataEditor.labelMake").
@@ -75,6 +97,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
 export function useTranslation() {
   const ctx = useContext(LanguageContext);
-  if (!ctx) throw new Error("useTranslation must be used within LanguageProvider");
+  if (!ctx)
+    throw new Error("useTranslation must be used within LanguageProvider");
   return ctx;
 }

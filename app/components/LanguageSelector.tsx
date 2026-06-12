@@ -4,11 +4,27 @@ import { useTranslation, type Language } from "../i18n/LanguageContext";
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 
-const OPTIONS: { code: Language; label: string }[] = [
-  { code: "en", label: "EN" },
-  { code: "es", label: "ES" },
-  { code: "de", label: "DE" },
-  { code: "zh", label: "ZH" },
+// Map language codes to flag SVG filenames when they differ
+const FLAG_MAP: Record<Language, string> = {
+  en: "en",
+  es: "es",
+  de: "de",
+  zh: "zh",
+  ja: "jp",
+  fr: "fr",
+  "pt-BR": "br",
+  hi: "in",
+};
+
+const OPTIONS: { code: Language; label: string; href: string }[] = [
+  { code: "en", label: "EN", href: "/" },
+  { code: "es", label: "ES", href: "es" },
+  { code: "de", label: "DE", href: "de" },
+  { code: "zh", label: "ZH", href: "zh" },
+  { code: "ja", label: "JA", href: "ja" },
+  { code: "fr", label: "FR", href: "fr" },
+  { code: "pt-BR", label: "PT-BR", href: "pt-br" },
+  { code: "hi", label: "HI", href: "hi" },
 ];
 
 export default function LanguageSelector() {
@@ -18,7 +34,7 @@ export default function LanguageSelector() {
   return (
     <div className="fixed top-3 left-3 z-50 px-2 py-1">
       <ul
-        className={`relative flex items-center flex-col gap-2 pr-3 overflow-hidden transition-all duration-300 ${open ? "delay-0 h-38" : "delay-150 h-7.5"}`}
+        className={`relative flex items-center flex-col gap-2 pr-3 overflow-hidden transition-all duration-300 ${open ? "delay-0 h-68" : "delay-150 h-7.5"}`}
       >
         {OPTIONS.map(({ code, label }) => (
           <li
@@ -36,7 +52,7 @@ export default function LanguageSelector() {
               className={`flex text-base font-semibold px-2 py-0.5 text-black cursor-pointer`}
             >
               <Image
-                src={`images/lang/${code}.svg`}
+                src={`/images/lang/${FLAG_MAP[code]}.svg`}
                 alt={`language ${label}`}
                 width="30"
                 height="20"
