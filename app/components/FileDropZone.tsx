@@ -50,8 +50,14 @@ export default function FileDropZone() {
             Make: tags.exif?.Make?.description || "",
             Model: tags.exif?.Model?.description || "",
             DateTimeOriginal: tags.exif?.DateTimeOriginal?.description || "",
-            Artist: tags.exif?.Artist?.description || tags.image?.Artist?.description || "",
-            Copyright: tags.exif?.Copyright?.description || tags.image?.Copyright?.description || "",
+            Artist:
+              tags.exif?.Artist?.description ||
+              tags.image?.Artist?.description ||
+              "",
+            Copyright:
+              tags.exif?.Copyright?.description ||
+              tags.image?.Copyright?.description ||
+              "",
 
             // ¡El salvavidas para los Google Pixel! ExifReader formatea el GPS perfectamente
             latitude: tags.gps?.Latitude ? tags.gps.Latitude : "",
@@ -66,7 +72,7 @@ export default function FileDropZone() {
         } catch (error) {
           console.error("Error leyendo imagen con ExifReader", error);
           setErrorMessage(t("fileDropZone.errorCorrupt"));
-          toast.error(t("fileDropZone.errorCorrupt"))
+          toast.error(t("fileDropZone.errorCorrupt"));
         } finally {
           setIsExtracting(false);
         }
@@ -85,13 +91,13 @@ export default function FileDropZone() {
       // Personalizamos el mensaje de error según el código de la librería
       if (errorCodes.includes("file-too-large")) {
         setErrorMessage(t("fileDropZone.errorSize", { max: MAX_FILE_SIZE_MB }));
-        toast.error(t("fileDropZone.errorSize", { max: MAX_FILE_SIZE_MB }))
+        toast.error(t("fileDropZone.errorSize", { max: MAX_FILE_SIZE_MB }));
       } else if (errorCodes.includes("file-invalid-type")) {
         setErrorMessage(t("fileDropZone.errorFormat"));
-        toast.error(t("fileDropZone.errorFormat"))
+        toast.error(t("fileDropZone.errorFormat"));
       } else {
         setErrorMessage(t("fileDropZone.errorUnknown"));
-        toast.error(t("fileDropZone.errorUnknown"))
+        toast.error(t("fileDropZone.errorUnknown"));
       }
     },
     [t],
@@ -150,7 +156,7 @@ export default function FileDropZone() {
           </p>
         </button>
       </div>
-      <div className="flex flex-col justify-between items-center h-full pt-10 sm:pt-20">
+      <div className="flex flex-col justify-between items-center h-full pt-30 sm:pt-20">
         <h1 className="flex items-center gap-4 text-2xl font-black">
           <Image
             src="/images/logo.svg"
@@ -162,13 +168,25 @@ export default function FileDropZone() {
           {t("fileDropZone.heading")}
         </h1>
 
-        <div className="flex flex-col justify-center items-center gap-8 w-full h-60 bg-green-600 text-white">
+        <div className="flex flex-col justify-center items-center gap-2 sm:gap-8 w-full h-60 bg-green-600 text-white">
           <p className="text-lg font-bold">{t("fileDropZone.subheading")}</p>
-          <ul className="flex gap-5 text-xl leading-normal">
-            <li className="flex items-center gap-1.5"><MapPin className="w-5 h-5 shrink-0 mt-0.5" />{t("fileDropZone.features.0")}</li>
-            <li className="flex items-center gap-1.5"><Smartphone className="w-5 h-5 shrink-0 mt-0.5" />{t("fileDropZone.features.1")}</li>
-            <li className="flex items-center gap-1.5"><Clock className="w-5 h-5 shrink-0 mt-0.5" />{t("fileDropZone.features.2")}</li>
-            <li className="flex items-center gap-1.5"><Sliders className="w-5 h-5 shrink-0 mt-0.5" />{t("fileDropZone.features.3")}</li>
+          <ul className="sm:flex space-y-2.5 sm:space-y-0 sm:space-x-5 text-base sm:text-xl leading-normal">
+            <li className="flex items-center gap-1.5">
+              <MapPin className="w-5 h-5 shrink-0 mt-0.5" />
+              {t("fileDropZone.features.0")}
+            </li>
+            <li className="flex items-center gap-1.5">
+              <Smartphone className="w-5 h-5 shrink-0 mt-0.5" />
+              {t("fileDropZone.features.1")}
+            </li>
+            <li className="flex items-center gap-1.5">
+              <Clock className="w-5 h-5 shrink-0 mt-0.5" />
+              {t("fileDropZone.features.2")}
+            </li>
+            <li className="flex items-center gap-1.5">
+              <Sliders className="w-5 h-5 shrink-0 mt-0.5" />
+              {t("fileDropZone.features.3")}
+            </li>
           </ul>
         </div>
       </div>
