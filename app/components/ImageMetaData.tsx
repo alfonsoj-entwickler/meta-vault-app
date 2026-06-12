@@ -55,8 +55,14 @@ export default function ImageMetaData() {
             Make: tags.exif?.Make?.description || "",
             Model: tags.exif?.Model?.description || "",
             DateTimeOriginal: tags.exif?.DateTimeOriginal?.description || "",
-            Artist: tags.exif?.Artist?.description || tags.image?.Artist?.description || "",
-            Copyright: tags.exif?.Copyright?.description || tags.image?.Copyright?.description || "",
+            Artist:
+              tags.exif?.Artist?.description ||
+              tags.image?.Artist?.description ||
+              "",
+            Copyright:
+              tags.exif?.Copyright?.description ||
+              tags.image?.Copyright?.description ||
+              "",
 
             // ¡El salvavidas para los Google Pixel! ExifReader formatea el GPS perfectamente
             latitude: tags.gps?.Latitude ? tags.gps.Latitude : "",
@@ -136,7 +142,7 @@ export default function ImageMetaData() {
           <input {...getInputProps()} aria-label="drop area to images" />
         </div>
       </div>
-      <div className="relative flex justify-center items-center h-full overflow-hidden p-2">
+      <div className="relative flex h-full overflow-hidden">
         <button
           onClick={handleClear}
           className="absolute top-4 right-4 bg-green-500 text-white p-2 rounded-full cursor-pointer hover:bg-green-600 transition-colors z-10 shadow-md"
@@ -150,7 +156,7 @@ export default function ImageMetaData() {
             src={previewUrl ?? ""}
             alt="Preview"
             fill
-            className="object-contain max-w-5xl mx-auto p-10 sm:p-20"
+            className="object-contain max-w-5xl mx-auto p-10 sm:p-20 -translate-y-32 sm:translate-y-0"
             unoptimized
           />
         )}
