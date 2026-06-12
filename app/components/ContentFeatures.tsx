@@ -3,15 +3,15 @@ import Image from "next/image";
 
 export default function ContentFeatures() {
   return (
-    <div className="relative w-full py-20 z-30 bg-white">
+    <div className="relative w-full py-20 px-10 sm:px-0 z-30 bg-white">
       <div className="max-w-4xl mx-auto">
-        <ul className="space-y-20">
-          <li className="flex items-center gap-10 text-right">
-            <div className="relative w-1/3">
+        <ul className="space-y-20 sm:space-y-32">
+          <li className="flex flex-col sm:flex-row sm:items-center gap-10 sm:text-right">
+            <div className="relative sm:w-2/5">
               <Image
-                src="/images/summary_large_image.jpg"
+                src="/images/location_tracking_schema.jpg"
                 alt="Exact location & Tracking"
-                className="object-cover aspect-square"
+                className="object-cover aspect-video"
                 width={600}
                 height={600}
               />
@@ -28,7 +28,16 @@ export default function ContentFeatures() {
               </p>
             </div>
           </li>
-          <li className="flex items-center gap-10 text-left">
+          <li className="flex flex-col sm:flex-row sm:items-center gap-10 text-left">
+            <div className="relative sm:w-2/5 sm:order-2">
+              <Image
+                src="/images/footprint_specs_schema.jpg"
+                alt="Exact location & Tracking"
+                className="object-cover aspect-video"
+                width={600}
+                height={600}
+              />
+            </div>
             <div className="flex-1 text-slate-800">
               <h2 className="mb-4 text-3xl font-bold uppercase">
                 Device footprint & Specs
@@ -40,22 +49,13 @@ export default function ContentFeatures() {
                 numbers of the smartphone or camera you used.
               </p>
             </div>
-            <div className="relative w-1/3">
-              <Image
-                src="/images/summary_large_image.jpg"
-                alt="Exact location & Tracking"
-                className="object-cover aspect-square"
-                width={600}
-                height={600}
-              />
-            </div>
           </li>
-          <li className="flex items-center gap-10 text-right">
-            <div className="relative w-1/3">
+          <li className="flex flex-col sm:flex-row sm:items-center gap-10 sm:text-right">
+            <div className="relative sm:w-2/5">
               <Image
-                src="/images/summary_large_image.jpg"
+                src="/images/timeline_habits_schema.jpg"
                 alt="Exact location & Tracking"
-                className="object-cover aspect-square"
+                className="object-cover aspect-video"
                 width={600}
                 height={600}
               />
@@ -72,7 +72,16 @@ export default function ContentFeatures() {
               </p>
             </div>
           </li>
-          <li className="flex items-center gap-10">
+          <li className="flex flex-col sm:flex-row sm:items-center gap-10">
+            <div className="relative sm:w-2/5 sm:order-2">
+              <Image
+                src="/images/history_settings_schema.jpg"
+                alt="Exact location & Tracking"
+                className="object-cover aspect-video"
+                width={600}
+                height={600}
+              />
+            </div>
             <div className="flex-1 text-slate-800">
               <h2 className="mb-4 text-3xl font-bold uppercase">
                 Editing history & Settings
@@ -83,15 +92,6 @@ export default function ContentFeatures() {
                 the image was altered, filtered, or manipulated using software
                 like Photoshop or Lightroom before being published.
               </p>
-            </div>
-            <div className="relative w-1/3">
-              <Image
-                src="/images/summary_large_image.jpg"
-                alt="Exact location & Tracking"
-                className="object-cover aspect-square"
-                width={600}
-                height={600}
-              />
             </div>
           </li>
         </ul>
