@@ -33,10 +33,8 @@ import {
 // Leaflet's default marker icons rely on webpack asset handling that Next.js
 // does not provide, so we point directly to the CDN copies instead.
 const iconUrl = "/images/leaflet/marker-icon.png";
-const iconRetinaUrl =
-  "/images/leaflet//marker-icon-2x.png";
-const shadowUrl =
-  "/images/leaflet/marker-shadow.png";
+const iconRetinaUrl = "/images/leaflet//marker-icon-2x.png";
+const shadowUrl = "/images/leaflet/marker-shadow.png";
 
 const customIcon = new L.Icon({
   iconUrl,
@@ -506,7 +504,7 @@ export default function MetadataEditor() {
       await exportarJpeg();
     } else if (extension === "png") {
       await exportarPng();
-    } else if (extension === 'webp') {
+    } else if (extension === "webp") {
       await exportarWebp();
     } else {
       toast.error(t("metadataEditor.errorFormatUnsupported"));
@@ -547,9 +545,9 @@ export default function MetadataEditor() {
   );
 
   return (
-    <div className="absolute bottom-4 right-4 flex flex-col w-full max-w-md mx-auto h-160 bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden animate-in fade-in slide-in-from-bottom-4 z-20">
+    <div className="absolute bottom-16 sm:bottom-4 right-4 flex flex-col w-11/12 sm:w-full max-w-md sm:mx-auto h-96 sm:h-160 bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden animate-in fade-in slide-in-from-bottom-4 z-20">
       {/* Header */}
-      <div className="bg-gray-200 border-b border-gray-200 px-6 py-4 shrink-0 flex flex-col items-start justify-between gap-4">
+      <div className="bg-gray-200 border-b border-gray-200 px-3 sm:px-6 py-4 flex flex-col items-start justify-between sm:gap-4">
         <div>
           <h2 className="text-xl font-semibold text-gray-800">
             {t("metadataEditor.title")}
@@ -565,15 +563,15 @@ export default function MetadataEditor() {
             type="button"
             onClick={handleClearAll}
             disabled={!hasMetadata}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 cursor-pointer bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 hover:text-red-700 transition-colors focus:ring-2 focus:ring-red-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+            className="hidden flex-1 sm:flex-none sm:flex items-center justify-center gap-2 px-4 py-2 cursor-pointer bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 hover:text-red-700 transition-colors focus:ring-2 focus:ring-red-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Trash2 aria-hidden="true" className="w-4 h-4" />
+            <Trash2 aria-hidden="true" className="w-5 h-5 shrink-0" />
             <span className="font-medium">{t("metadataEditor.clearAll")}</span>
           </button>
         </div>
       </div>
       {/* Content */}
-      <div className="p-6 h-full overflow-auto">
+      <div className="p-3 sm:p-6 h-full overflow-auto">
         {!hasMetadata && (
           <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-lg flex items-start gap-3">
             <AlertTriangle
@@ -823,26 +821,42 @@ export default function MetadataEditor() {
         </div>
       </div>
       {/* Footer */}
-      <div className="shrink-0 bg-gray-200 border-t border-gray-200 px-6 py-4 flex flex-col gap-3 z-10 relative">
+      <div className="shrink-0 bg-gray-200 border-t border-gray-200 px-3 sm:px-6 py-4 flex flex-col gap-3 z-10 relative">
         {!isSupported && (
           <p className="flex items-center gap-2 text-sm text-amber-600 bg-amber-50 px-3 py-2 rounded-md">
             <AlertTriangle className="w-4 h-4" />
             Solo se soporta la modificación de imágenes JPG, PNG y WebP.
           </p>
         )}
-        <button
-          onClick={handleDownload}
-          disabled={!isSupported}
-          className={`flex justify-center items-center gap-2 px-6 py-3 rounded-lg font-medium shadow-sm cursor-pointer transition-all transform
-            ${isSupported
-              ? "bg-blue-600 text-white hover:bg-blue-700 hover:-translate-y-0.5"
-              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+        <div className="flex gap-2.5">
+          <button
+            type="button"
+            onClick={handleClearAll}
+            disabled={!hasMetadata}
+            className="flex flex-1 flex-col sm:flex-row sm:hidden items-center justify-center gap-2 p-1.5 sm:px-6 sm:py-3 cursor-pointer bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 hover:text-red-700 transition-colors focus:ring-2 focus:ring-red-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Trash2 aria-hidden="true" className="w-5 h-5 shrink-0" />
+            <span className="text-xs sm:text-base font-medium">
+              {t("metadataEditor.clearAll")}
+            </span>
+          </button>
+          <button
+            onClick={handleDownload}
+            disabled={!isSupported}
+            className={`flex-1 flex flex-col sm:flex-row justify-center items-center gap-2 p-1.5 sm:px-6 sm:py-3 rounded-lg font-medium shadow-sm cursor-pointer transition-all transform
+            ${
+              isSupported
+                ? "bg-blue-600 text-white hover:bg-blue-700 hover:-translate-y-0.5"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }
           `}
-        >
-          <Save className="w-5 h-5" />
-          {t("metadataEditor.btnDownload")}
-        </button>
+          >
+            <Save className="w-5 h-5 shrink-0" />
+            <span className="text-xs sm:text-base font-medium">
+              {t("metadataEditor.btnDownload")}
+            </span>
+          </button>
+        </div>
       </div>
     </div>
   );
