@@ -1,5 +1,12 @@
 import type { NextConfig } from "next";
 
+const withPWA = require('next-pwa')({
+  dest: 'public',       // Where service worker files are generated
+  register: true,       // Auto-register the service worker
+  skipWaiting: true,    // Activate new SW immediately on update
+  disable: process.env.NODE_ENV === 'development', // Only active in production
+});
+
 const ContentSecurityPolicy = [
   "default-src 'self'",
   // 'unsafe-inline' and 'unsafe-eval' are required by Leaflet and tsparticles —
@@ -16,6 +23,7 @@ const ContentSecurityPolicy = [
 ].join("; ");
 
 const nextConfig: NextConfig = {
+  reactStrictMode: true,
   // async headers() {
   //   return [
   //     {
