@@ -1,7 +1,9 @@
 "use client";
 import Image from "next/image";
+import { useTranslation } from "../i18n/LanguageContext";
 
 export default function ContentFeatures() {
+   const { t } = useTranslation();
   return (
     <div className="relative w-full py-20 px-10 sm:px-0 z-30 bg-white">
       <div className="max-w-4xl mx-auto">
@@ -18,13 +20,10 @@ export default function ContentFeatures() {
             </div>
             <div className="flex-1 text-slate-800">
               <h2 className="mb-4 text-3xl font-bold uppercase">
-                Exact location & Tracking
+                {t("features.titleLocation")}
               </h2>
               <p className="text-xl">
-                Hidden GPS coordinates (latitude, longitude, and altitude) are
-                embedded in your image file. This data can pinpoint the exact
-                street, home address, or workplace where the photo was taken,
-                allowing strangers to map your daily movements.
+                {t("features.descriptionLocation")}
               </p>
             </div>
           </li>
@@ -40,13 +39,10 @@ export default function ContentFeatures() {
             </div>
             <div className="flex-1 text-slate-800">
               <h2 className="mb-4 text-3xl font-bold uppercase">
-                Device footprint & Specs
+                {t("features.titleFootprint")}
               </h2>
               <p className="text-xl">
-                Your photo carries a unique digital fingerprint of your
-                hardware. This includes the specific brand, model, operating
-                system version, and sometimes even the unique hardware serial
-                numbers of the smartphone or camera you used.
+                {t("features.descriptionFootprint")}
               </p>
             </div>
           </li>
@@ -62,13 +58,10 @@ export default function ContentFeatures() {
             </div>
             <div className="flex-1 text-slate-800">
               <h2 className="mb-4 text-3xl font-bold uppercase">
-                Invisible timeline & Habits
+                {t("features.titleTimeline")}
               </h2>
               <p className="text-xl">
-                Beyond just the day and year, metadata records the exact hour,
-                minute, and second the shutter clicked. When shared online, this
-                precise timestamp can expose your daily routines, sleep
-                schedules, or when you are away from home.
+                 {t("features.descriptionTimeline")}
               </p>
             </div>
           </li>
