@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     shortcut: "/images/favicon-32x32.png",
     apple: "/images/apple-touch-icon.png",
   },
-  manifest: "http://localhost:3000/manifest.json",
+  manifest: "/manifest.json",
 
   // 5. Robots and detailed Indexing
   robots: {
