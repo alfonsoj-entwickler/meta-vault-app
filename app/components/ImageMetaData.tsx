@@ -57,11 +57,9 @@ export default function ImageMetaData() {
             DateTimeOriginal: tags.exif?.DateTimeOriginal?.description || "",
             Artist:
               tags.exif?.Artist?.description ||
-              tags.image?.Artist?.description ||
               "",
             Copyright:
               tags.exif?.Copyright?.description ||
-              tags.image?.Copyright?.description ||
               "",
 
             // ¡El salvavidas para los Google Pixel! ExifReader formatea el GPS perfectamente
