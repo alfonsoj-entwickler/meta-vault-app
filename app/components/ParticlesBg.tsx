@@ -20,6 +20,9 @@ export default function ParticlesBg() {
 
   // ULTRA-SMOOTH BUBBLE CONFIGURATION
   const options: ISourceOptions = {
+    fullScreen: {
+      enable: false,
+    },
     fpsLimit: 60, // Crucial for high refresh rate screens (smoothness)
     particles: {
       number: {
@@ -97,7 +100,7 @@ export default function ParticlesBg() {
   if (!init) return null;
 
   return (
-    <div className="relative inset-0 z-0 h-full w-full">
+    <div className="relative inset-0 z-0 h-screen w-full">
       <Particles
         id="tsparticles"
         className="w-full h-full"
