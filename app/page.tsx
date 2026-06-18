@@ -5,6 +5,7 @@ import ImageMetaData from "@/components/ImageMetaData";
 import FileDropZone from "@/components/FileDropZone";
 import { useImageStore } from "@/store/useImageStore";
 import ContentFeatures from "./components/ContentFeatures";
+import Footer from "./components/Footer";
 
 // MetadataEditor imports Leaflet, which accesses `window` at module evaluation time.
 // ssr: false prevents Next.js from attempting to prerender it on the server.
@@ -37,7 +38,12 @@ export default function Home() {
             </>
           )}
         </div>
-        {!previewUrl && <ContentFeatures />}
+        {!previewUrl && (
+          <>
+            <ContentFeatures />
+            <Footer />
+          </>
+        )}
       </main>
     </div>
   );
