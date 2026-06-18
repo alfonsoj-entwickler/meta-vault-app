@@ -50,12 +50,8 @@ export default function FileDropZone() {
             Make: tags.exif?.Make?.description || "",
             Model: tags.exif?.Model?.description || "",
             DateTimeOriginal: tags.exif?.DateTimeOriginal?.description || "",
-            Artist:
-              tags.exif?.Artist?.description ||
-              "",
-            Copyright:
-              tags.exif?.Copyright?.description ||
-              "",
+            Artist: tags.exif?.Artist?.description || "",
+            Copyright: tags.exif?.Copyright?.description || "",
 
             // ¡El salvavidas para los Google Pixel! ExifReader formatea el GPS perfectamente
             latitude: tags.gps?.Latitude ? tags.gps.Latitude : "",
@@ -115,7 +111,7 @@ export default function FileDropZone() {
   });
 
   return (
-    <div className="group absolute inset-0 z-10 h-screen w-full text-black overflow-hidden">
+    <div className="group absolute inset-0 z-10 h-[calc(100vh+5rem)] w-full text-black overflow-hidden">
       <div className="absolute inset-0">
         {/* Zona de Dropzone o Visualización */}
         <div
@@ -166,26 +162,48 @@ export default function FileDropZone() {
           {t("fileDropZone.heading")}
         </h1>
 
-        <div className="flex flex-col justify-center items-center gap-2 sm:gap-8 w-full h-60 bg-green-600 text-white">
-          <p className="text-lg font-bold">{t("fileDropZone.subheading")}</p>
-          <ul className="sm:flex space-y-2.5 sm:space-y-0 sm:space-x-5 text-base sm:text-xl leading-normal">
-            <li className="flex items-center gap-1.5">
-              <MapPin className="w-5 h-5 shrink-0 mt-0.5" />
-              {t("fileDropZone.features.0")}
-            </li>
-            <li className="flex items-center gap-1.5">
-              <Smartphone className="w-5 h-5 shrink-0 mt-0.5" />
-              {t("fileDropZone.features.1")}
-            </li>
-            <li className="flex items-center gap-1.5">
-              <Clock className="w-5 h-5 shrink-0 mt-0.5" />
-              {t("fileDropZone.features.2")}
-            </li>
-            <li className="flex items-center gap-1.5">
-              <Sliders className="w-5 h-5 shrink-0 mt-0.5" />
-              {t("fileDropZone.features.3")}
-            </li>
-          </ul>
+        <div className="relative w-full py-20">
+          <div className="absolute top-0 w-full">
+            <svg viewBox="0 0 1920 140">
+              <path
+                d="M1920 0l-107 28c-106 29-320 85-533 93-213 7-427-36-640-50s-427 0-533 7L0 85v171h1920z"
+                fill="var(--color-green-400)"
+              />
+              <path
+                d="M0 129l64-26c64-27 192-81 320-75 128 5 256 69 384 64 128-6 256-80 384-91s256 43 384 70c128 26 256 26 320 26h64v96H0z"
+                fill="var(--color-green-600)"
+              />
+            </svg>
+          </div>
+          <div className="flex flex-col gap-2 sm:gap-8 justify-center items-center bg-green-600 text-white h-60 w-full">
+            <p className="text-lg font-bold">{t("fileDropZone.subheading")}</p>
+            <ul className="sm:flex space-y-2.5 sm:space-y-0 sm:space-x-5 text-base sm:text-xl leading-normal">
+              <li className="flex items-center gap-1.5">
+                <MapPin className="w-5 h-5 shrink-0 mt-0.5" />
+                {t("fileDropZone.features.0")}
+              </li>
+              <li className="flex items-center gap-1.5">
+                <Smartphone className="w-5 h-5 shrink-0 mt-0.5" />
+                {t("fileDropZone.features.1")}
+              </li>
+              <li className="flex items-center gap-1.5">
+                <Clock className="w-5 h-5 shrink-0 mt-0.5" />
+                {t("fileDropZone.features.2")}
+              </li>
+              <li className="flex items-center gap-1.5">
+                <Sliders className="w-5 h-5 shrink-0 mt-0.5" />
+                {t("fileDropZone.features.3")}
+              </li>
+            </ul>
+          </div>
+          <div className="absolute bottom-0 right-0 w-full rotate-180">
+            <svg viewBox="0 0 1920 79" className="h-20 w-full bg-white">
+              <path
+                d="M0 59l64-11c64-11 192-34 320-43s256-5 384 4 256 23 384 34 256 21 384 14 256-30 320-41l64-11v94H0z"
+                fill="var(--color-green-600)"
+              />
+            </svg>
+          </div>
         </div>
       </div>
     </div>
