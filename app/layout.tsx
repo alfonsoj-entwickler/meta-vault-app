@@ -10,23 +10,25 @@ import "react-toastify/dist/ReactToastify.css";
 // This is a static export (output: "export") — there is no runtime server.
 // Metadata is generated once at build time, so we always use English here.
 // The client-side LanguageProvider handles the user's actual language preference.
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
 export const metadata: Metadata = {
-  metadataBase: new URL("http://localhost:3000/"),
+  metadataBase: new URL(baseUrl),
   title: { default: "Meta Vault", template: "%s | Meta Vault" },
   description: en.seo.description,
   keywords: en.seo.keywords,
   alternates: {
-    canonical: "http://localhost:3000/", // The main or default URL
+    canonical: "/", // The main or default URL
     languages: {
-      "es-ES": "http://localhost:3000/",
-      "en-US": "http://localhost:3000/",
-      "x-default": "http://localhost:3000/",
+      "es-ES": "/",
+      "en-US": "/",
+      "x-default": "/",
     },
   },
   openGraph: {
     title: "Meta Vault",
     description: en.seo.description,
-    url: "http://localhost:3000/",
+    url: baseUrl,
     siteName: "Meta Vault",
     images: [
       {
