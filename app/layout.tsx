@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     siteName: "Meta Vault",
     images: [
       {
-        url: "/images/og-image.jpg",
+        url: "images/og-image.jpg",
         width: 1200,
         height: 630,
         alt: en.seo.ogImageAlt,
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Meta Vault",
     description: en.seo.description,
-    images: ["/images/og-image.jpg"],
+    images: ["images/og-image.jpg"],
     creator: "@tu_usuario_twitter",
   },
   // 4. Icons and Manifest (PWA / Browsers)
