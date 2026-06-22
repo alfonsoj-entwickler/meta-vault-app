@@ -3,14 +3,14 @@ import Link from "next/link";
 export default function Footer() {
   return (
     <footer className="relative pt-20 bg-white">
-      <div className="bg-green-600">
+      <div className="bg-green-800">
         <svg
           viewBox="0 0 1920 79"
           className="absolute top-0 right-0 w-full h-20"
         >
           <path
             d="M0 59l64-11c64-11 192-34 320-43s256-5 384 4 256 23 384 34 256 21 384 14 256-30 320-41l64-11v94H0z"
-            fill="var(--color-green-600)"
+            fill="var(--color-green-800)"
           />
         </svg>
         <div className="p-8">
