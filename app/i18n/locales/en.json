@@ -85,6 +85,8 @@
     "titleFootprint": "Device footprint & Specs",
     "descriptionFootprint": "Your photo carries a unique digital fingerprint of your hardware. This includes the specific brand, model, operating system version, and sometimes even the unique hardware serial numbers of the smartphone or camera you used.",
     "titleTimeline": "Invisible timeline & Habits",
-    "descriptionTimeline": "Beyond just the day and year, metadata records the exact hour, minute, and second the shutter clicked. When shared online, this precise timestamp can expose your daily routines, sleep schedules, or when you are away from home."
+    "descriptionTimeline": "Beyond just the day and year, metadata records the exact hour, minute, and second the shutter clicked. When shared online, this precise timestamp can expose your daily routines, sleep schedules, or when you are away from home.",
+    "titleHistory": "Editing history & Settings",
+    "descriptionHistory": "Every adjustment leaves a trace. The file logs technical camera settings like aperture, ISO, and flash usage. It also reveals if the image was altered, filtered, or manipulated using software like Photoshop or Lightroom before being published."
   }
 }
