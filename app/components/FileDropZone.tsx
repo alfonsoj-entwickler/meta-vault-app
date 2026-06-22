@@ -171,11 +171,11 @@ export default function FileDropZone() {
               />
               <path
                 d="M0 129l64-26c64-27 192-81 320-75 128 5 256 69 384 64 128-6 256-80 384-91s256 43 384 70c128 26 256 26 320 26h64v96H0z"
-                fill="var(--color-green-600)"
+                fill="var(--color-green-800)"
               />
             </svg>
           </div>
-          <div className="flex flex-col gap-2 sm:gap-8 justify-center items-center bg-green-600 text-white h-60 w-full">
+          <div className="flex flex-col gap-2 sm:gap-8 justify-center items-center bg-green-800 text-white h-60 w-full">
             <p className="text-lg font-bold">{t("fileDropZone.subheading")}</p>
             <ul className="sm:flex space-y-2.5 sm:space-y-0 sm:space-x-5 text-base sm:text-xl leading-normal">
               <li className="flex items-center gap-1.5">
@@ -200,7 +200,7 @@ export default function FileDropZone() {
             <svg viewBox="0 0 1920 79" className="h-20 w-full bg-white">
               <path
                 d="M0 59l64-11c64-11 192-34 320-43s256-5 384 4 256 23 384 34 256 21 384 14 256-30 320-41l64-11v94H0z"
-                fill="var(--color-green-600)"
+                fill="var(--color-green-800)"
               />
             </svg>
           </div>
