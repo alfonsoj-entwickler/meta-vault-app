@@ -9,13 +9,13 @@ export default function ContentFeatures() {
       <div className="max-w-4xl mx-auto">
         <ul className="space-y-20 sm:space-y-32">
           <li className="flex flex-col sm:flex-row sm:items-center gap-10 sm:text-right">
-            <div className="relative sm:w-2/5">
+            <div className="relative aspect-square sm:w-5/12 overflow-hidden rounded-xl">
               <Image
-                src="/images/location_tracking_schema.jpg"
+                src="/images/location_tracking_img.jpg"
                 alt="Exact location & Tracking"
-                className="object-cover aspect-video"
-                width={600}
-                height={600}
+                className="object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, 33vw"
               />
             </div>
             <div className="flex-1 text-slate-800">
@@ -26,13 +26,13 @@ export default function ContentFeatures() {
             </div>
           </li>
           <li className="flex flex-col sm:flex-row sm:items-center gap-10 text-left">
-            <div className="relative sm:w-2/5 sm:order-2">
+            <div className="relative aspect-square sm:w-5/12 sm:order-2 overflow-hidden rounded-xl">
               <Image
-                src="/images/footprint_specs_schema.jpg"
+                src="/images/device_footprint.jpg"
                 alt="Exact location & Tracking"
-                className="object-cover aspect-video"
-                width={600}
-                height={600}
+                className="object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, 33vw"
               />
             </div>
             <div className="flex-1 text-slate-800">
@@ -43,13 +43,13 @@ export default function ContentFeatures() {
             </div>
           </li>
           <li className="flex flex-col sm:flex-row sm:items-center gap-10 sm:text-right">
-            <div className="relative sm:w-2/5">
+            <div className="relative aspect-square sm:w-5/12 overflow-hidden rounded-xl">
               <Image
-                src="/images/timeline_habits_schema.jpg"
+                src="/images/invisible_timeline_image.jpg"
                 alt="Exact location & Tracking"
-                className="object-cover aspect-video"
-                width={600}
-                height={600}
+                className="object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, 33vw"
               />
             </div>
             <div className="flex-1 text-slate-800">
@@ -60,25 +60,20 @@ export default function ContentFeatures() {
             </div>
           </li>
           <li className="flex flex-col sm:flex-row sm:items-center gap-10">
-            <div className="relative sm:w-2/5 sm:order-2">
+            <div className="relative aspect-square sm:w-5/12 sm:order-2 overflow-hidden rounded-xl">
               <Image
-                src="/images/history_settings_schema.jpg"
+                src="/images/editing_history_image.jpg"
                 alt="Exact location & Tracking"
-                className="object-cover aspect-video"
-                width={600}
-                height={600}
+                className="object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, 33vw"
               />
             </div>
             <div className="flex-1 text-slate-800">
               <h2 className="mb-4 text-3xl font-bold uppercase">
-                Editing history & Settings
+                {t("features.titleHistory")}
               </h2>
-              <p className="text-xl">
-                Every adjustment leaves a trace. The file logs technical camera
-                settings like aperture, ISO, and flash usage. It also reveals if
-                the image was altered, filtered, or manipulated using software
-                like Photoshop or Lightroom before being published.
-              </p>
+              <p className="text-xl">{t("features.descriptionHistory")}</p>
             </div>
           </li>
         </ul>
