@@ -34,6 +34,8 @@
     "title": "Metadaten-Editor",
     "subtitle": "Werte bearbeiten oder das Bild vollständig bereinigen.",
     "noExif": "Keine EXIF-Metadaten in diesem Bild gefunden.",
+    "imageClean": "Bild ist sauber",
+    "noMetadataToEdit": "Dieses Bild enthält keine Metadaten zum Bearbeiten.",
     "clearAll": "Alles löschen",
     "alreadyClean": "Dieses Bild ist bereits bereinigt oder verwendet ein Format ohne Standard-Metadaten.",
     "successUpdate": "Metadaten im Speicher aktualisiert. Bereit zum Exportieren.",
@@ -65,6 +67,9 @@
     "errorModifyPng": "Beim Ändern des PNG-Bildes ist ein Fehler aufgetreten.",
     "errorInvalidWebp": "Die Datei ist kein gültiges WebP.",
     "errorModifyWebp": "Beim Ändern des WebP-Bildes ist ein Fehler aufgetreten.",
-    "errorFormatUnsupported": "Die Bearbeitung für dieses Format befindet sich in Entwicklung."
+    "errorFormatUnsupported": "Die Bearbeitung für dieses Format befindet sich in Entwicklung.",
+    "unsupportedFormat": "Nur JPG-, PNG- und WebP-Bildformate werden zum Ändern unterstützt.",
+    "errorImageChanged": "Das Bild wurde geändert. Bitte warten Sie, bis die Metadaten geladen sind, bevor Sie herunterladen.",
+    "errorMetadataNotLoaded": "Die Metadaten werden noch geladen. Bitte warten Sie einen Moment vor dem Herunterladen."
   }
 }

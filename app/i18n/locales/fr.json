@@ -34,6 +34,8 @@
     "title": "Éditeur de Métadonnées",
     "subtitle": "Modifiez les valeurs ou effacez complètement l'image.",
     "noExif": "Aucune métadonnée EXIF détectée dans cette image.",
+    "imageClean": "Image Propre",
+    "noMetadataToEdit": "Cette image ne contient aucune métadonnée à modifier.",
     "clearAll": "Tout Effacer",
     "alreadyClean": "Cette image est déjà nettoyée ou utilise un format qui n'inclut pas les métadonnées standard.",
     "successUpdate": "Métadonnées mises à jour en mémoire. Prêt à exporter.",
@@ -60,6 +62,9 @@
     "advancedData": "Données Avancées (Lecture seule)",
     "fieldCount": "{{count}} champs",
     "btnUpdate": "Mettre à jour l'aperçu",
-    "btnDownload": "Télécharger l'image modifiée"
+    "btnDownload": "Télécharger l'image modifiée",
+    "unsupportedFormat": "Seuls les formats d'image JPG, PNG et WebP sont pris en charge pour la modification.",
+    "errorImageChanged": "L'image a été modifiée. Veuillez attendre le chargement des métadonnées avant de télécharger.",
+    "errorMetadataNotLoaded": "Les métadonnées se chargent toujours. Veuillez attendre un moment avant de télécharger."
   }
 }

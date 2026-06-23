@@ -34,6 +34,8 @@
     "title": "Editor de Metadados",
     "subtitle": "Modifique os valores ou limpe a imagem completamente.",
     "noExif": "Nenhum metadado EXIF detectado nesta imagem.",
+    "imageClean": "Imagem Limpa",
+    "noMetadataToEdit": "Esta imagem não contém metadados para editar.",
     "clearAll": "Limpar Tudo",
     "alreadyClean": "Esta imagem já está limpa ou usa um formato que não inclui metadados padrão.",
     "successUpdate": "Metadados atualizados na memória. Pronto para exportar.",
@@ -60,6 +62,9 @@
     "advancedData": "Dados Avançados (Somente leitura)",
     "fieldCount": "{{count}} campos",
     "btnUpdate": "Atualizar Visualização",
-    "btnDownload": "Baixar Imagem Modificada"
+    "btnDownload": "Baixar Imagem Modificada",
+    "unsupportedFormat": "Apenas os formatos de imagem JPG, PNG e WebP são suportados para modificação.",
+    "errorImageChanged": "A imagem foi alterada. Aguarde o carregamento dos metadados antes de baixar.",
+    "errorMetadataNotLoaded": "Os metadados ainda estão sendo carregados. Aguarde um momento antes de baixar."
   }
 }

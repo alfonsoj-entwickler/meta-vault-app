@@ -34,6 +34,8 @@
     "title": "メタデータエディタ",
     "subtitle": "値を変更するか、画像を完全にクリアします。",
     "noExif": "この画像ではEXIFメタデータが検出されました。",
+    "imageClean": "画像はクリーン",
+    "noMetadataToEdit": "この画像には編集するメタデータがありません。",
     "clearAll": "すべてクリア",
     "alreadyClean": "この画像はすでにクリーンであるか、標準メタデータを含まない形式を使用しています。",
     "successUpdate": "メタデータはメモリで更新されました。エクスポートの準備ができています。",
@@ -60,6 +62,9 @@
     "advancedData": "詳細データ（読み取り専用）",
     "fieldCount": "{{count}}個のフィールド",
     "btnUpdate": "プレビューを更新",
-    "btnDownload": "変更された画像をダウンロード"
+    "btnDownload": "変更された画像をダウンロード",
+    "unsupportedFormat": "JPG、PNG、WebP画像形式のみが変更に対応しています。",
+    "errorImageChanged": "画像が変更されました。ダウンロードする前にメタデータが読み込まれるまで待ってください。",
+    "errorMetadataNotLoaded": "メタデータはまだ読み込み中です。ダウンロードする前に少し待ってください。"
   }
 }
