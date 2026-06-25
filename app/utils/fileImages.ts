@@ -1,5 +1,8 @@
 import { generateReadableFileName } from "./randonName";
 
+// Supported image formats (O(1) lookup with Set)
+const SUPPORTED_FORMATS = new Set(["jpeg", "jpg", "png", "webp"]);
+
 // Helper function to download reconstructed JPEGs
 export const descargarBlob = (base64Data: string, mimeType: string) => {
   const byteString = atob(base64Data.split(",")[1]);
@@ -23,8 +26,15 @@ export const forzarDescargaBrowser = (blob: Blob, extension: string) => {
   URL.revokeObjectURL(url);
 };
 
-export const supportedImage = (typeImg: File | null) => typeImg?.type === 'image/jpeg' ||
-  typeImg?.type === 'image/jpg' ||
-  typeImg?.type === 'image/png' ||
-  typeImg?.type === 'image/webp';
+/**
+ * Checks if a file is a supported image format (JPEG, PNG, or WebP).
+ * Uses O(1) Set lookup for efficiency.
+ * @param typeImg The image file or null
+ * @returns True if the file is a supported image format
+ */
+export const supportedImage = (typeImg: File | null): boolean => {
+  if (!typeImg) return false;
+  const format = typeImg.type.split("/")[1]?.toLowerCase();
+  return SUPPORTED_FORMATS.has(format);
+};
 
