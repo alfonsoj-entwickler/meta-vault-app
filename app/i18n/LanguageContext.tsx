@@ -63,16 +63,24 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   // localStorage has no subscription API, so a direct setState is the only option —
   // the rule is suppressed here because this is a one-time post-hydration sync.
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY) as Language | null;
-    if (saved && SUPPORTED.includes(saved)) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setLang(saved);
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY) as Language | null;
+      if (saved && SUPPORTED.includes(saved)) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setLang(saved);
+      }
+    } catch {
+      // localStorage access may fail in private browsing mode; silently fall back to "en"
     }
   }, []);
 
   const setLanguage = (lang: Language) => {
     setLang(lang);
-    localStorage.setItem(STORAGE_KEY, lang);
+    try {
+      localStorage.setItem(STORAGE_KEY, lang);
+    } catch {
+      // localStorage access may fail in private browsing mode; silently ignore
+    }
   };
 
   const t = (key: string, vars?: Record<string, string | number>): string => {
