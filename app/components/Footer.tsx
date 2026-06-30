@@ -17,7 +17,7 @@ export default function Footer() {
           <div className="flex justify-end items-center gap-16 text-white">
             <Link
               href={
-                "https://github.com/alfonsoj-entwickler/meta-vault-app/README.md#privacy"
+                "https://github.com/alfonsoj-entwickler/meta-vault-app/blob/main/README.md"
               }
             >
               Privacy
