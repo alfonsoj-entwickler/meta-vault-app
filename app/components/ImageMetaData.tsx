@@ -7,7 +7,9 @@ import { useImageStore } from "../store/useImageStore";
 import { X } from "lucide-react";
 import { useTranslation } from "../i18n/LanguageContext";
 import { validateMagicBytes } from "../utils/validateMagicBytes";
+import { formatFileSize } from "../utils/formatFileSize";
 import ExifReader from "exifreader";
+import { withTimeout } from "../utils/withTimeout";
 
 // Definimos los límites en constantes para facilitar su mantenimiento
 const MAX_FILE_SIZE_MB = 20;
@@ -47,7 +49,11 @@ export default function ImageMetaData() {
         try {
           // Magia Client-side: Pasamos el archivo físico directamente a ExifReader
           // Usamos { expanded: true } para que nos devuelva el GPS en un formato súper fácil de leer
-          const tags = await ExifReader.load(file, { expanded: true });
+          const tags = await withTimeout(
+            ExifReader.load(file, { expanded: true }),
+            10000,
+            "EXIF extraction from ImageMetaData",
+          );
 
           // Armamos un objeto limpio y normalizado para nuestro estado
           const metadataFormateada = {
@@ -67,7 +73,6 @@ export default function ImageMetaData() {
           };
 
           setMetadata(metadataFormateada);
-          // console.log("Datos extraídos con ExifReader:", metadataFormateada);
         } catch (error) {
           console.error("Error leyendo imagen con ExifReader", error);
           setErrorMessage(t("fileDropZone.errorCorrupt"));
@@ -148,7 +153,7 @@ export default function ImageMetaData() {
         {previewUrl && (
           <Image
             src={previewUrl ?? ""}
-            alt="Preview"
+            alt={imageFile ? `Preview of ${imageFile.name}` : "Image preview"}
             fill
             className="object-contain max-w-5xl mx-auto p-10 sm:p-20 -translate-y-32 sm:translate-y-0"
             unoptimized
@@ -159,7 +164,7 @@ export default function ImageMetaData() {
           <div className="absolute bottom-4 left-4 bg-black/75 text-white px-3 py-1.5 rounded-md text-sm backdrop-blur-sm font-medium shadow-lg">
             {imageFile?.name}{" "}
             <span className="text-gray-300 ml-1">
-              ({(imageFile?.size / (1024 * 1024)).toFixed(2)} MB)
+              ({formatFileSize(imageFile?.size || 0)})
             </span>
           </div>
         )}
