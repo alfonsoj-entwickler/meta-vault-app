@@ -19,16 +19,22 @@ import encodeChunks from "png-chunks-encode";
 import { toast } from "react-toastify";
 import { safeDate } from "../utils/safeDate";
 import { useTranslation } from "../i18n/LanguageContext";
-import {
-  decimalToDMS,
-  hasValidCoordinates,
-  safeCoordinate,
-} from "../utils/formatData";
+import { hasValidCoordinates, safeCoordinate } from "../utils/formatData";
 import {
   descargarBlob,
   forzarDescargaBrowser,
   supportedImage,
 } from "../utils/fileImages";
+import {
+  buildExifObject,
+  injectJpegExif,
+  type ExifFormData,
+} from "../utils/exifBuilders";
+import {
+  extractWebPChunks,
+  rebuildWebP,
+  injectWebPExif,
+} from "../utils/webpBuilder";
 
 // Leaflet's default marker icons rely on webpack asset handling that Next.js
 // does not provide, so we point directly to the CDN copies instead.
@@ -149,86 +155,8 @@ export default function MetadataEditor() {
       let jpegData = e.target.result as string;
 
       try {
-        const isScrubbed =
-          !formData.Make &&
-          !formData.Model &&
-          !formData.Artist &&
-          !formData.Copyright &&
-          !formData.latitude &&
-          !formData.longitude &&
-          !formData.DateTimeOriginal;
-
-        if (isScrubbed) {
-          jpegData = piexif.remove(jpegData); // Total wipe / removal
-        } else {
-          let exifObj;
-          try {
-            exifObj = piexif.load(jpegData);
-          } catch (err) {
-            exifObj = { "0th": {}, Exif: {}, GPS: {}, "1st": {} };
-            console.error(`Error: ${err} - ${exifObj}`);
-          }
-
-          // Injection of edited fields
-          if (exifObj["0th"]) {
-            if (formData.Make)
-              exifObj["0th"][piexif.ImageIFD.Make] = formData.Make;
-            else delete exifObj["0th"][piexif.ImageIFD.Make];
-
-            if (formData.Model)
-              exifObj["0th"][piexif.ImageIFD.Model] = formData.Model;
-            else delete exifObj["0th"][piexif.ImageIFD.Model];
-
-            if (formData.Artist)
-              exifObj["0th"][piexif.ImageIFD.Artist] = formData.Artist;
-            else delete exifObj["0th"][piexif.ImageIFD.Artist];
-
-            if (formData.Copyright)
-              exifObj["0th"][piexif.ImageIFD.Copyright] = formData.Copyright;
-            else delete exifObj["0th"][piexif.ImageIFD.Copyright];
-          }
-
-          if (exifObj["Exif"]) {
-            if (formData.DateTimeOriginal) {
-              exifObj["Exif"][piexif.ExifIFD.DateTimeOriginal] =
-                formData.DateTimeOriginal.replace(/-/g, ":").replace("T", " ");
-            } else {
-              delete exifObj["Exif"][piexif.ExifIFD.DateTimeOriginal];
-            }
-          }
-          // GPS INJECTION LOGIC
-          const latNum = parseFloat(formData.latitude);
-          const lngNum = parseFloat(formData.longitude);
-
-          if (
-            !isNaN(latNum) &&
-            !isNaN(lngNum) &&
-            formData.latitude !== "" &&
-            formData.longitude !== ""
-          ) {
-            // Ensure the GPS dictionary exists
-            if (!exifObj["GPS"]) exifObj["GPS"] = {};
-
-            // 1. Inject Latitude and its Reference
-            exifObj["GPS"][piexif.GPSIFD.GPSLatitudeRef] =
-              latNum < 0 ? "S" : "N";
-            exifObj["GPS"][piexif.GPSIFD.GPSLatitude] = decimalToDMS(latNum);
-
-            // 2. Inject Longitude and its Reference
-            exifObj["GPS"][piexif.GPSIFD.GPSLongitudeRef] =
-              lngNum < 0 ? "W" : "E";
-            exifObj["GPS"][piexif.GPSIFD.GPSLongitude] = decimalToDMS(lngNum);
-
-            // 3. Add the GPS version (Required by the EXIF standard)
-            exifObj["GPS"][piexif.GPSIFD.GPSVersionID] = [2, 2, 0, 0];
-          } else {
-            // If the user cleared the fields or entered invalid data, we delete the entire GPS folder
-            exifObj["GPS"] = {};
-          }
-
-          const exifBytes = piexif.dump(exifObj);
-          jpegData = piexif.insert(exifBytes, jpegData);
-        }
+        const exifObj = buildExifObject(formData as ExifFormData);
+        jpegData = injectJpegExif(jpegData, exifObj);
 
         // Download
         descargarBlob(jpegData, "image/jpeg");
@@ -258,54 +186,10 @@ export default function MetadataEditor() {
           !chunksNoDeseados.includes(chunk.name),
       );
 
-      // Evaluate whether we just wanted to wipe everything or if we need to rewrite
-      const isScrubbed =
-        !formData.Make &&
-        !formData.Model &&
-        !formData.Artist &&
-        !formData.Copyright &&
-        !formData.latitude &&
-        !formData.longitude &&
-        !formData.DateTimeOriginal;
+      // Build EXIF object (returns null if all fields are empty/scrubbed)
+      const exifObj = buildExifObject(formData as ExifFormData);
 
-      if (!isScrubbed) {
-        // --- NEW EXIF CONSTRUCTION ---
-        // Create an empty EXIF structure
-        const exifObj: Record<string, Record<number, unknown>> = {
-          "0th": {},
-          Exif: {},
-          GPS: {},
-          "1st": {},
-        };
-
-        // Fill the object with form data (Same as in JPEG)
-        if (formData.Make) exifObj["0th"][piexif.ImageIFD.Make] = formData.Make;
-        if (formData.Model)
-          exifObj["0th"][piexif.ImageIFD.Model] = formData.Model;
-        if (formData.Artist)
-          exifObj["0th"][piexif.ImageIFD.Artist] = formData.Artist;
-        if (formData.Copyright)
-          exifObj["0th"][piexif.ImageIFD.Copyright] = formData.Copyright;
-        if (formData.DateTimeOriginal)
-          exifObj["Exif"][piexif.ExifIFD.DateTimeOriginal] =
-            formData.DateTimeOriginal.replace(/-/g, ":").replace("T", " ");
-
-        const latNum = parseFloat(formData.latitude);
-        const lngNum = parseFloat(formData.longitude);
-        if (
-          !isNaN(latNum) &&
-          !isNaN(lngNum) &&
-          formData.latitude !== "" &&
-          formData.longitude !== ""
-        ) {
-          exifObj["GPS"][piexif.GPSIFD.GPSLatitudeRef] = latNum < 0 ? "S" : "N";
-          exifObj["GPS"][piexif.GPSIFD.GPSLatitude] = decimalToDMS(latNum);
-          exifObj["GPS"][piexif.GPSIFD.GPSLongitudeRef] =
-            lngNum < 0 ? "W" : "E";
-          exifObj["GPS"][piexif.GPSIFD.GPSLongitude] = decimalToDMS(lngNum);
-          exifObj["GPS"][piexif.GPSIFD.GPSVersionID] = [2, 2, 0, 0];
-        }
-
+      if (exifObj !== null) {
         // 4. EXPERT TRICK: Adjust the header for the PNG standard
         // piexif.dump() creates the binary string, but adds the JPEG-specific "Exif\0\0" header
         const exifBytesString = piexif.dump(exifObj);
@@ -350,143 +234,30 @@ export default function MetadataEditor() {
   const exportarWebp = async () => {
     if (!imageFile) return;
     try {
-      const arrayBuffer = await imageFile!.arrayBuffer();
-      const dataView = new DataView(arrayBuffer);
+      const arrayBuffer = await imageFile.arrayBuffer();
 
-      // 1. Validate that it is a real RIFF WEBP container
-      if (
-        dataView.getUint32(0, false) !== 0x52494646 ||
-        dataView.getUint32(8, false) !== 0x57454250
-      ) {
-        toast.error(t("metadataEditor.errorInvalidWebp"));
-        return;
-      }
+      // 1. Extract WebP chunks (validates RIFF WEBP header)
+      let chunks = extractWebPChunks(arrayBuffer);
 
-      // 2. Extract all chunks
-      let chunks: { id: string; size: number; payload: Uint8Array }[] = [];
-      let offset = 12; // Skip header "RIFF" (4) + size (4) + "WEBP" (4)
+      // 2. Build EXIF object (returns null if all fields are empty/scrubbed)
+      const exifObj = buildExifObject(formData as ExifFormData);
 
-      while (offset < arrayBuffer.byteLength) {
-        // Read chunk ID (e.g. 'VP8X', 'EXIF', 'XMP ')
-        const id = String.fromCharCode(
-          dataView.getUint8(offset),
-          dataView.getUint8(offset + 1),
-          dataView.getUint8(offset + 2),
-          dataView.getUint8(offset + 3),
-        );
-
-        // Read size (WebP uses Little Endian)
-        const size = dataView.getUint32(offset + 4, true);
-        const paddedSize = size + (size % 2); // If size is odd, WebP adds a 1-byte padding
-
-        // Extract raw payload
-        const payload = new Uint8Array(arrayBuffer, offset + 8, size);
-        chunks.push({ id, size, payload });
-
-        offset += 8 + paddedSize;
-      }
-
-      // 3. CLEANUP: Filter and remove old metadata
-      chunks = chunks.filter((c) => c.id !== "EXIF" && c.id !== "XMP ");
-
-      // 4. EVALUATE MODIFICATION OR WIPING
-      const isScrubbed =
-        !formData.Make &&
-        !formData.Model &&
-        !formData.Artist &&
-        !formData.Copyright &&
-        !formData.latitude &&
-        !formData.longitude &&
-        !formData.DateTimeOriginal;
-
-      if (!isScrubbed) {
-        // Build the new EXIF object
-        const exifObj: any = { "0th": {}, Exif: {}, GPS: {}, "1st": {} };
-
-        if (formData.Make) exifObj["0th"][piexif.ImageIFD.Make] = formData.Make;
-        if (formData.Model)
-          exifObj["0th"][piexif.ImageIFD.Model] = formData.Model;
-        if (formData.Artist)
-          exifObj["0th"][piexif.ImageIFD.Artist] = formData.Artist;
-        if (formData.Copyright)
-          exifObj["0th"][piexif.ImageIFD.Copyright] = formData.Copyright;
-        if (formData.DateTimeOriginal)
-          exifObj["Exif"][piexif.ExifIFD.DateTimeOriginal] =
-            formData.DateTimeOriginal.replace(/-/g, ":").replace("T", " ");
-
-        const latNum = parseFloat(formData.latitude);
-        const lngNum = parseFloat(formData.longitude);
-        if (
-          !isNaN(latNum) &&
-          !isNaN(lngNum) &&
-          formData.latitude !== "" &&
-          formData.longitude !== ""
-        ) {
-          exifObj["GPS"][piexif.GPSIFD.GPSLatitudeRef] = latNum < 0 ? "S" : "N";
-          exifObj["GPS"][piexif.GPSIFD.GPSLatitude] = decimalToDMS(latNum);
-          exifObj["GPS"][piexif.GPSIFD.GPSLongitudeRef] =
-            lngNum < 0 ? "W" : "E";
-          exifObj["GPS"][piexif.GPSIFD.GPSLongitude] = decimalToDMS(lngNum);
-          exifObj["GPS"][piexif.GPSIFD.GPSVersionID] = [2, 2, 0, 0];
-        }
-
-        // Generate bytes. Just like in PNG, we remove "Exif\0\0" to comply with the standard
+      // 3. Convert EXIF object to bytes (removing "Exif\0\0" header for WebP standard)
+      let exifData: Uint8Array | null = null;
+      if (exifObj !== null) {
         const exifBytesString = piexif.dump(exifObj);
         const cleanExifString = exifBytesString.substring(6);
-
-        const exifData = new Uint8Array(cleanExifString.length);
+        exifData = new Uint8Array(cleanExifString.length);
         for (let i = 0; i < cleanExifString.length; i++) {
           exifData[i] = cleanExifString.charCodeAt(i);
         }
-
-        // Inject the new EXIF chunk at the end
-        chunks.push({ id: "EXIF", size: exifData.length, payload: exifData });
-
-        // Expert Adjustment: If VP8X chunk (Extended WebP) exists, we must set the "EXIF Bit"
-        if (chunks[0].id === "VP8X") {
-          chunks[0].payload[0] |= 0x08; // The 4th bit indicates EXIF presence
-        }
-      } else {
-        // If we wipe everything and there is a VP8X, we unset the "EXIF Bit" for a clean file
-        if (chunks.length > 0 && chunks[0].id === "VP8X") {
-          chunks[0].payload[0] &= ~0x08;
-        }
       }
 
-      // 5. REBUILD THE WEBP FILE
-      let totalSize = 4; // Count the 4 bytes of the word "WEBP"
-      chunks.forEach((c) => {
-        totalSize += 8 + c.size + (c.size % 2);
-      });
+      // 4. Inject or remove EXIF using utility (handles VP8X flags)
+      chunks = injectWebPExif(chunks, exifData);
 
-      const newBuffer = new ArrayBuffer(8 + totalSize);
-      const newDataView = new DataView(newBuffer);
-      const newUint8Array = new Uint8Array(newBuffer);
-
-      // Write the main header
-      newDataView.setUint32(0, 0x52494646, false); // "RIFF"
-      newDataView.setUint32(4, totalSize, true); // Total size (Little Endian)
-      newDataView.setUint32(8, 0x57454250, false); // "WEBP"
-
-      // Reassemble the chunks
-      let currentOffset = 12;
-      chunks.forEach((c) => {
-        // Chunk ID
-        for (let i = 0; i < 4; i++)
-          newUint8Array[currentOffset + i] = c.id.charCodeAt(i);
-        // Size
-        newDataView.setUint32(currentOffset + 4, c.size, true);
-        // Payload
-        newUint8Array.set(c.payload, currentOffset + 8);
-
-        currentOffset += 8 + c.size;
-        // If odd, the buffer has zeros by default; we just increment offset by 1
-        if (c.size % 2 !== 0) {
-          currentOffset++;
-        }
-      });
-
-      // 6. Download final file
+      // 5. Rebuild and download
+      const newBuffer = rebuildWebP(chunks);
       const blob = new Blob([newBuffer], { type: "image/webp" });
       forzarDescargaBrowser(blob, "webp");
     } catch (error) {
@@ -497,6 +268,21 @@ export default function MetadataEditor() {
 
   const handleDownload = async () => {
     if (!imageFile) return;
+
+    // Guard: Check if metadata is in sync with current imageFile
+    // If imageFile changed but metadata hasn't updated yet, warn and prevent download
+    const currentImageFile = useImageStore.getState().imageFile;
+    const currentMetadata = useImageStore.getState().metadata;
+
+    if (currentImageFile !== imageFile) {
+      toast.error(t("metadataEditor.errorImageChanged"));
+      return;
+    }
+
+    if (!currentMetadata) {
+      toast.error(t("metadataEditor.errorMetadataNotLoaded"));
+      return;
+    }
 
     const extension = imageFile.type.split("/")[1];
 
@@ -553,34 +339,42 @@ export default function MetadataEditor() {
             {t("metadataEditor.title")}
           </h2>
           <p className="text-sm text-gray-500">
-            {hasMetadata
-              ? t("metadataEditor.subtitle")
-              : t("metadataEditor.noExif")}
+            {t("metadataEditor.subtitle")}
           </p>
         </div>
-        <div className="flex gap-3 w-full">
-          <button
-            type="button"
-            onClick={handleClearAll}
-            disabled={!hasMetadata}
-            className="hidden flex-1 sm:flex-none sm:flex items-center justify-center gap-2 px-4 py-2 cursor-pointer bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 hover:text-red-700 transition-colors focus:ring-2 focus:ring-red-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Trash2 aria-hidden="true" className="w-5 h-5 shrink-0" />
-            <span className="font-medium">{t("metadataEditor.clearAll")}</span>
-          </button>
-        </div>
+         {/* If image is completely clean (no metadata), show compact message instead of full editor */}
+        {!hasMetadata ? (
+          <div className="flex flex-col w-11/12 sm:w-full max-w-md sm:mx-auto">
+            <div className="flex items-start gap-4">
+              <AlertTriangle className="w-6 h-6 text-green-600 shrink-0 mt-0.5" />
+              <div>
+                <h2 className="text-lg font-semibold text-gray-800 mb-1">
+                  {t("metadataEditor.imageClean")}
+                </h2>
+                <p className="text-sm text-gray-600">
+                  {t("metadataEditor.noMetadataToEdit")}
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex gap-3 w-full">
+            <button
+              type="button"
+              onClick={handleClearAll}
+              disabled={!hasMetadata}
+              className="hidden flex-1 sm:flex-none sm:flex items-center justify-center gap-2 px-4 py-2 cursor-pointer bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 hover:text-red-700 transition-colors focus:ring-2 focus:ring-red-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Trash2 aria-hidden="true" className="w-5 h-5 shrink-0" />
+              <span className="font-medium">
+                {t("metadataEditor.clearAll")}
+              </span>
+            </button>
+          </div>
+        )}
       </div>
       {/* Content */}
       <div className="p-3 sm:p-6 h-full overflow-auto">
-        {!hasMetadata && (
-          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-lg flex items-start gap-3">
-            <AlertTriangle
-              aria-hidden="true"
-              className="w-5 h-5 shrink-0 mt-0.5"
-            />
-            <p className="text-sm">{t("metadataEditor.alreadyClean")}</p>
-          </div>
-        )}
         <div className="grid grid-cols-1 gap-8">
           {/* Category: Camera */}
           <div className="space-y-4">
@@ -825,7 +619,7 @@ export default function MetadataEditor() {
         {!isSupported && (
           <p className="flex items-center gap-2 text-sm text-amber-600 bg-amber-50 px-3 py-2 rounded-md">
             <AlertTriangle className="w-4 h-4" />
-            Solo se soporta la modificación de imágenes JPG, PNG y WebP.
+            {t("metadataEditor.unsupportedFormat")}
           </p>
         )}
         <div className="flex gap-2.5">
