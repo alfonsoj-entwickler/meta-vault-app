@@ -9,6 +9,7 @@ import { useTranslation } from "../i18n/LanguageContext";
 import { validateMagicBytes } from "../utils/validateMagicBytes";
 import { toast } from "react-toastify";
 import { Clock, MapPin, Sliders, Smartphone } from "lucide-react";
+import { withTimeout } from "../utils/withTimeout";
 
 // Definimos los límites en constantes para facilitar su mantenimiento
 const MAX_FILE_SIZE_MB = 20;
@@ -42,7 +43,11 @@ export default function FileDropZone() {
         try {
           // Magia Client-side: Pasamos el archivo físico directamente a ExifReader
           // Usamos { expanded: true } para que nos devuelva el GPS en un formato súper fácil de leer
-          const tags = await ExifReader.load(file, { expanded: true });
+          const tags = await withTimeout(
+            ExifReader.load(file, { expanded: true }),
+            10000,
+            "EXIF extraction from FileDropZone",
+          );
 
           // Armamos un objeto limpio y normalizado para nuestro estado
           const metadataFormateada = {
@@ -62,7 +67,6 @@ export default function FileDropZone() {
           };
 
           setMetadata(metadataFormateada);
-          // console.log("Datos extraídos con ExifReader:", metadataFormateada);
         } catch (error) {
           console.error("Error leyendo imagen con ExifReader", error);
           setErrorMessage(t("fileDropZone.errorCorrupt"));
