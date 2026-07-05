@@ -6,6 +6,7 @@ import FileDropZone from "@/components/FileDropZone";
 import { useImageStore } from "@/store/useImageStore";
 import ContentFeatures from "./components/ContentFeatures";
 import Footer from "./components/Footer";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 // MetadataEditor imports Leaflet, which accesses `window` at module evaluation time.
 // ssr: false prevents Next.js from attempting to prerender it on the server.
@@ -29,11 +30,15 @@ export default function Home() {
           {previewUrl ? (
             <>
               <ImageMetaData />
-              <MetadataEditor />
+              <ErrorBoundary componentName="MetadataEditor">
+                <MetadataEditor />
+              </ErrorBoundary>
             </>
           ) : (
             <>
-              <ParticlesBg />
+              <ErrorBoundary componentName="ParticlesBg">
+                <ParticlesBg />
+              </ErrorBoundary>
               <FileDropZone />
             </>
           )}
