@@ -331,18 +331,11 @@ export default function MetadataEditor() {
   );
 
   return (
-    <div className="absolute bottom-16 sm:bottom-4 right-4 flex flex-col w-11/12 sm:w-full max-w-md sm:mx-auto h-96 sm:h-160 bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden animate-in fade-in slide-in-from-bottom-4 z-20">
-      {/* Header */}
+    <div
+      className={`absolute bottom-16 sm:bottom-4 right-4 flex flex-col w-11/12 sm:w-full max-w-md sm:mx-auto ${hasMetadata ? "h-96 sm:h-160" : "h-auto"} bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden animate-in fade-in slide-in-from-bottom-4 z-20`}
+    >
       <div className="bg-gray-200 border-b border-gray-200 px-3 sm:px-6 py-4 flex flex-col items-start justify-between sm:gap-4">
-        <div>
-          <h2 className="text-xl font-semibold text-gray-800">
-            {t("metadataEditor.title")}
-          </h2>
-          <p className="text-sm text-gray-500">
-            {t("metadataEditor.subtitle")}
-          </p>
-        </div>
-         {/* If image is completely clean (no metadata), show compact message instead of full editor */}
+        {/* If image is completely clean (no metadata), show compact message instead of full editor */}
         {!hasMetadata ? (
           <div className="flex flex-col w-11/12 sm:w-full max-w-md sm:mx-auto">
             <div className="flex items-start gap-4">
@@ -358,262 +351,284 @@ export default function MetadataEditor() {
             </div>
           </div>
         ) : (
-          <div className="flex gap-3 w-full">
-            <button
-              type="button"
-              onClick={handleClearAll}
-              disabled={!hasMetadata}
-              className="hidden flex-1 sm:flex-none sm:flex items-center justify-center gap-2 px-4 py-2 cursor-pointer bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 hover:text-red-700 transition-colors focus:ring-2 focus:ring-red-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Trash2 aria-hidden="true" className="w-5 h-5 shrink-0" />
-              <span className="font-medium">
-                {t("metadataEditor.clearAll")}
-              </span>
-            </button>
+          <div className="space-y-4">
+            {/* Header */}
+            <div>
+              <h2 className="text-xl font-semibold text-gray-800">
+                {t("metadataEditor.title")}
+              </h2>
+              <p className="text-sm text-gray-500">
+                {t("metadataEditor.subtitle")}
+              </p>
+            </div>
+
+            <div className="flex gap-3 w-full">
+              <button
+                type="button"
+                onClick={handleClearAll}
+                disabled={!hasMetadata}
+                className="hidden flex-1 sm:flex-none sm:flex items-center justify-center gap-2 px-4 py-2 cursor-pointer bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 hover:text-red-700 transition-colors focus:ring-2 focus:ring-red-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Trash2 aria-hidden="true" className="w-5 h-5 shrink-0" />
+                <span className="font-medium">
+                  {t("metadataEditor.clearAll")}
+                </span>
+              </button>
+            </div>
           </div>
         )}
       </div>
       {/* Content */}
-      <div className="p-3 sm:p-6 h-full overflow-auto">
-        <div className="grid grid-cols-1 gap-8">
-          {/* Category: Camera */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 text-gray-700 border-b pb-2">
-              <Camera aria-hidden="true" className="w-5 h-5 text-blue-500" />
-              <h3 className="font-medium">
-                {t("metadataEditor.sectionCamera")}
-              </h3>
-            </div>
-            <div className="space-y-3">
-              <div>
-                <label
-                  htmlFor="field-Make"
-                  className="block text-xs font-medium text-gray-500 mb-1"
-                >
-                  {t("metadataEditor.labelMake")}
-                </label>
-                <input
-                  id="field-Make"
-                  type="text"
-                  name="Make"
-                  value={formData.Make}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
-                  placeholder={t("metadataEditor.placeholderMake")}
-                />
+      {hasMetadata && (
+        <div className="p-3 sm:p-6 h-full overflow-auto">
+          <div className="grid grid-cols-1 gap-8">
+            {/* Category: Camera */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-gray-700 border-b pb-2">
+                <Camera aria-hidden="true" className="w-5 h-5 text-blue-500" />
+                <h3 className="font-medium">
+                  {t("metadataEditor.sectionCamera")}
+                </h3>
               </div>
-              <div>
-                <label
-                  htmlFor="field-Model"
-                  className="block text-xs font-medium text-gray-500 mb-1"
-                >
-                  {t("metadataEditor.labelModel")}
-                </label>
-                <input
-                  id="field-Model"
-                  type="text"
-                  name="Model"
-                  value={formData.Model}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
-                  placeholder={t("metadataEditor.placeholderModel")}
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="field-DateTimeOriginal"
-                  className="block text-xs font-medium text-gray-500 mb-1"
-                >
-                  {t("metadataEditor.labelDate")}
-                </label>
-                <input
-                  id="field-DateTimeOriginal"
-                  type="datetime-local"
-                  name="DateTimeOriginal"
-                  value={formData.DateTimeOriginal}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
-                  placeholder="YYYY-MM-DD HH:MM:SS"
-                />
-              </div>
-            </div>
-          </div>
-          {/* Category: Authorship */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 text-gray-700 border-b pb-2">
-              <User aria-hidden="true" className="w-5 h-5 text-green-500" />
-              <h3 className="font-medium">
-                {t("metadataEditor.sectionAuthorship")}
-              </h3>
-            </div>
-            <div className="space-y-3">
-              <div>
-                <label
-                  htmlFor="field-Artist"
-                  className="block text-xs font-medium text-gray-500 mb-1"
-                >
-                  {t("metadataEditor.labelArtist")}
-                </label>
-                <input
-                  id="field-Artist"
-                  type="text"
-                  name="Artist"
-                  value={formData.Artist}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 text-sm"
-                  placeholder={t("metadataEditor.placeholderArtist")}
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="field-Copyright"
-                  className="block text-xs font-medium text-gray-500 mb-1"
-                >
-                  {t("metadataEditor.labelCopyright")}
-                </label>
-                <input
-                  id="field-Copyright"
-                  type="text"
-                  name="Copyright"
-                  value={formData.Copyright}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 text-sm"
-                  placeholder={t("metadataEditor.placeholderCopyright")}
-                />
-              </div>
-            </div>
-          </div>
-          {/* Category: Location */}
-          <div className="space-y-4">
-            {/* lg:col-span-3 makes location take full width on large screens for a better map view */}
-            <div className="flex items-center gap-2 text-gray-700 border-b pb-2">
-              <MapPin aria-hidden="true" className="w-5 h-5 text-purple-500" />
-              <h3 className="font-medium">{t("metadataEditor.sectionGps")}</h3>
-            </div>
-            <div className="flex flex-col gap-6">
-              {/* Coordinate inputs */}
-              <div className="w-full space-y-3">
+              <div className="space-y-3">
                 <div>
                   <label
-                    htmlFor="field-latitude"
+                    htmlFor="field-Make"
                     className="block text-xs font-medium text-gray-500 mb-1"
                   >
-                    {t("metadataEditor.labelLat")}
+                    {t("metadataEditor.labelMake")}
                   </label>
                   <input
-                    id="field-latitude"
-                    type="number"
-                    step="any"
-                    min="-90"
-                    max="90"
-                    name="latitude"
-                    value={formData.latitude}
+                    id="field-Make"
+                    type="text"
+                    name="Make"
+                    value={formData.Make}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 text-sm font-mono"
-                    placeholder={t("metadataEditor.placeholderLat")}
+                    className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    placeholder={t("metadataEditor.placeholderMake")}
                   />
                 </div>
                 <div>
                   <label
-                    htmlFor="field-longitude"
+                    htmlFor="field-Model"
                     className="block text-xs font-medium text-gray-500 mb-1"
                   >
-                    {t("metadataEditor.labelLng")}
+                    {t("metadataEditor.labelModel")}
                   </label>
                   <input
-                    id="field-longitude"
-                    type="number"
-                    step="any"
-                    min="-180"
-                    max="180"
-                    name="longitude"
-                    value={formData.longitude}
+                    id="field-Model"
+                    type="text"
+                    name="Model"
+                    value={formData.Model}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 text-sm font-mono"
-                    placeholder={t("metadataEditor.placeholderLng")}
+                    className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    placeholder={t("metadataEditor.placeholderModel")}
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="field-DateTimeOriginal"
+                    className="block text-xs font-medium text-gray-500 mb-1"
+                  >
+                    {t("metadataEditor.labelDate")}
+                  </label>
+                  <input
+                    id="field-DateTimeOriginal"
+                    type="datetime-local"
+                    name="DateTimeOriginal"
+                    value={formData.DateTimeOriginal}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    placeholder="YYYY-MM-DD HH:MM:SS"
                   />
                 </div>
               </div>
-              {/* Interactive Map */}
-              <div className="w-full h-48 bg-gray-100 rounded-lg border border-gray-300 overflow-hidden relative z-0">
-                {validCoordinates ? (
-                  <MapContainer
-                    center={[latNum, lngNum]}
-                    zoom={13}
-                    scrollWheelZoom={false}
-                    className="h-full w-full"
+            </div>
+            {/* Category: Authorship */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-gray-700 border-b pb-2">
+                <User aria-hidden="true" className="w-5 h-5 text-green-500" />
+                <h3 className="font-medium">
+                  {t("metadataEditor.sectionAuthorship")}
+                </h3>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <label
+                    htmlFor="field-Artist"
+                    className="block text-xs font-medium text-gray-500 mb-1"
                   >
-                    <TileLayer
-                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    {t("metadataEditor.labelArtist")}
+                  </label>
+                  <input
+                    id="field-Artist"
+                    type="text"
+                    name="Artist"
+                    value={formData.Artist}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 text-sm"
+                    placeholder={t("metadataEditor.placeholderArtist")}
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="field-Copyright"
+                    className="block text-xs font-medium text-gray-500 mb-1"
+                  >
+                    {t("metadataEditor.labelCopyright")}
+                  </label>
+                  <input
+                    id="field-Copyright"
+                    type="text"
+                    name="Copyright"
+                    value={formData.Copyright}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 text-sm"
+                    placeholder={t("metadataEditor.placeholderCopyright")}
+                  />
+                </div>
+              </div>
+            </div>
+            {/* Category: Location */}
+            <div className="space-y-4">
+              {/* lg:col-span-3 makes location take full width on large screens for a better map view */}
+              <div className="flex items-center gap-2 text-gray-700 border-b pb-2">
+                <MapPin
+                  aria-hidden="true"
+                  className="w-5 h-5 text-purple-500"
+                />
+                <h3 className="font-medium">
+                  {t("metadataEditor.sectionGps")}
+                </h3>
+              </div>
+              <div className="flex flex-col gap-6">
+                {/* Coordinate inputs */}
+                <div className="w-full space-y-3">
+                  <div>
+                    <label
+                      htmlFor="field-latitude"
+                      className="block text-xs font-medium text-gray-500 mb-1"
+                    >
+                      {t("metadataEditor.labelLat")}
+                    </label>
+                    <input
+                      id="field-latitude"
+                      type="number"
+                      step="any"
+                      min="-90"
+                      max="90"
+                      name="latitude"
+                      value={formData.latitude}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 text-sm font-mono"
+                      placeholder={t("metadataEditor.placeholderLat")}
                     />
-                    <Marker position={[latNum, lngNum]} icon={customIcon}>
-                      <Popup>{t("metadataEditor.mapPopup")}</Popup>
-                    </Marker>
-                    <ChangeView center={[latNum, lngNum]} />
-                  </MapContainer>
-                ) : (
-                  <div className="h-full w-full flex flex-col items-center justify-center text-gray-500 p-4 text-center">
-                    <MapPin
-                      aria-hidden="true"
-                      className="w-8 h-8 mb-2 text-gray-400 opacity-50"
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="field-longitude"
+                      className="block text-xs font-medium text-gray-500 mb-1"
+                    >
+                      {t("metadataEditor.labelLng")}
+                    </label>
+                    <input
+                      id="field-longitude"
+                      type="number"
+                      step="any"
+                      min="-180"
+                      max="180"
+                      name="longitude"
+                      value={formData.longitude}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 text-sm font-mono"
+                      placeholder={t("metadataEditor.placeholderLng")}
                     />
-                    <p className="text-sm font-medium">
-                      {t("metadataEditor.noGps")}
+                  </div>
+                </div>
+                {/* Interactive Map */}
+                <div className="w-full h-48 bg-gray-100 rounded-lg border border-gray-300 overflow-hidden relative z-0">
+                  {validCoordinates ? (
+                    <MapContainer
+                      center={[latNum, lngNum]}
+                      zoom={13}
+                      scrollWheelZoom={false}
+                      className="h-full w-full"
+                    >
+                      <TileLayer
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      />
+                      <Marker position={[latNum, lngNum]} icon={customIcon}>
+                        <Popup>{t("metadataEditor.mapPopup")}</Popup>
+                      </Marker>
+                      <ChangeView center={[latNum, lngNum]} />
+                    </MapContainer>
+                  ) : (
+                    <div className="h-full w-full flex flex-col items-center justify-center text-gray-500 p-4 text-center">
+                      <MapPin
+                        aria-hidden="true"
+                        className="w-8 h-8 mb-2 text-gray-400 opacity-50"
+                      />
+                      <p className="text-sm font-medium">
+                        {t("metadataEditor.noGps")}
+                      </p>
+                      <p className="text-xs">
+                        {t("metadataEditor.noGpsDetail")}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            {/* EXTRA DATA SECTION (Collapsible) */}
+            {datosExtra.length > 0 && (
+              <div className="">
+                <details className="group rounded-lg border border-gray-200">
+                  <summary className="flex flex-col justify-between space-y-2 cursor-pointer p-4 font-semibold text-gray-700 select-none">
+                    <p className="flex items-center justify-between gap-2">
+                      {/* You can import Info or FileText icon from lucide-react */}
+                      {t("metadataEditor.advancedData")}
+                      <ChevronDown
+                        aria-hidden="true"
+                        className="size-5 rotate-0 transform-3d transition-transform duration-300 group-open:rotate-180"
+                      />
                     </p>
-                    <p className="text-xs">{t("metadataEditor.noGpsDetail")}</p>
+                    <p className="self-start bg-gray-200 text-gray-600 text-xs px-2 py-1 rounded-full">
+                      {t("metadataEditor.fieldCount", {
+                        count: datosExtra.length,
+                      })}
+                    </p>
+                  </summary>
+
+                  <div className="p-4 border-t border-gray-200">
+                    <div className="grid gap-x-4 gap-y-2">
+                      {datosExtra.map(([key, value], index) => {
+                        // Format the value for proper display
+                        const displayValue = value;
+
+                        return (
+                          <div
+                            key={index}
+                            className="flex flex-col py-2.5 space-y-1 border-b border-gray-200 last:border-0 overflow-hidden"
+                          >
+                            <p className="text-xs uppercase font-bold text-gray-400 tracking-wider">
+                              {key}
+                            </p>
+                            <p className="text-sm text-gray-800 wrap-break-word font-mono line-clamp-3">
+                              {displayValue || "-"}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                )}
+                </details>
               </div>
-            </div>
+            )}
           </div>
-          {/* EXTRA DATA SECTION (Collapsible) */}
-          {datosExtra.length > 0 && (
-            <div className="">
-              <details className="group rounded-lg border border-gray-200">
-                <summary className="flex flex-col justify-between space-y-2 cursor-pointer p-4 font-semibold text-gray-700 select-none">
-                  <p className="flex items-center justify-between gap-2">
-                    {/* You can import Info or FileText icon from lucide-react */}
-                    {t("metadataEditor.advancedData")}
-                    <ChevronDown
-                      aria-hidden="true"
-                      className="size-5 rotate-0 transform-3d transition-transform duration-300 group-open:rotate-180"
-                    />
-                  </p>
-                  <p className="self-start bg-gray-200 text-gray-600 text-xs px-2 py-1 rounded-full">
-                    {t("metadataEditor.fieldCount", {
-                      count: datosExtra.length,
-                    })}
-                  </p>
-                </summary>
-
-                <div className="p-4 border-t border-gray-200">
-                  <div className="grid gap-x-4 gap-y-2">
-                    {datosExtra.map(([key, value], index) => {
-                      // Format the value for proper display
-                      const displayValue = value;
-
-                      return (
-                        <div
-                          key={index}
-                          className="flex flex-col py-2.5 space-y-1 border-b border-gray-200 last:border-0 overflow-hidden"
-                        >
-                          <p className="text-xs uppercase font-bold text-gray-400 tracking-wider">
-                            {key}
-                          </p>
-                          <p className="text-sm text-gray-800 wrap-break-word font-mono line-clamp-3">
-                            {displayValue || "-"}
-                          </p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </details>
-            </div>
-          )}
         </div>
-      </div>
+      )}
+
       {/* Footer */}
       <div className="shrink-0 bg-gray-200 border-t border-gray-200 px-3 sm:px-6 py-4 flex flex-col gap-3 z-10 relative">
         {!isSupported && (
