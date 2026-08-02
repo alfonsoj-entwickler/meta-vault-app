@@ -131,13 +131,13 @@ export default function FileDropZone() {
           type="button"
           onClick={open}
           aria-label={t("fileDropZone.ariaUpload")}
-          className={`absolute top-[calc(50%-4rem)] left-1/2 -translate-1/2 flex flex-col justify-center items-center w-80 h-80 sm:w-96 sm:h-96 space-y-4 rounded-full bg-green-500/70 text-white cursor-pointer transition-all duration-300 hover:bg-green-500 ${isDragActive ? "-z-10" : "z-10"}`}
+          className={`absolute top-[calc(50%-5rem)] sm:top-[calc(50%-8rem)] left-1/2 -translate-1/2 flex flex-col justify-center items-center w-80 h-80 xl:w-96 xl:h-96 space-y-4 rounded-full bg-green-500/70 text-white cursor-pointer transition-all duration-300 hover:bg-green-500 ${isDragActive ? "-z-10" : "z-10"}`}
         >
           <svg
             aria-hidden="true"
             focusable="false"
             viewBox="0 0 24 24"
-            className="size-16 sm:size-20"
+            className="size-16 xl:size-20"
           >
             <path
               d="M19 7v3h-2V7h-3V5h3V2h2v3h3v2h-3zm-3 4V8h-3V5H5a2 2 0 00-2 2v12c0 1.1.9 2 2 2h12a2 2 0 002-2v-8h-3zM5 19l3-4 2 3 3-4 4 5H5z"
@@ -166,9 +166,9 @@ export default function FileDropZone() {
           {t("fileDropZone.heading")}
         </h1>
 
-        <div className="relative w-full py-20">
-          <div className="absolute top-0 w-full">
-            <svg viewBox="0 0 1920 140">
+        <div className="relative w-full  ">
+          <div className=" ">
+            <svg viewBox="0 0 1920 140" className="w-full h-full">
               <path
                 d="M1920 0l-107 28c-106 29-320 85-533 93-213 7-427-36-640-50s-427 0-533 7L0 85v171h1920z"
                 fill="var(--color-green-400)"
@@ -200,8 +200,8 @@ export default function FileDropZone() {
               </li>
             </ul>
           </div>
-          <div className="absolute bottom-0 right-0 w-full rotate-180">
-            <svg viewBox="0 0 1920 79" className="h-20 w-full bg-white">
+          <div className="w-full rotate-180">
+            <svg viewBox="0 0 1920 79" className="w-full h-full">
               <path
                 d="M0 59l64-11c64-11 192-34 320-43s256-5 384 4 256 23 384 34 256 21 384 14 256-30 320-41l64-11v94H0z"
                 fill="var(--color-green-800)"
