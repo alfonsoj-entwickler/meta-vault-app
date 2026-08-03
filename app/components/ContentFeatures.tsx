@@ -5,7 +5,7 @@ import { useTranslation } from "../i18n/LanguageContext";
 export default function ContentFeatures() {
   const { t } = useTranslation();
   return (
-    <div className="relative w-full py-20 px-10 sm:px-0 mt-20 z-30 bg-white">
+    <div className="relative w-full py-20 px-10 xl:px-0 mt-20 z-30 bg-white">
       <div className="max-w-4xl mx-auto">
         <ul className="space-y-20 sm:space-y-32">
           <li className="flex flex-col sm:flex-row sm:items-center gap-10 sm:text-right">
