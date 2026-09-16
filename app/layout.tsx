@@ -50,7 +50,7 @@ export const metadata: Metadata = {
   },
   // 4. Icons and Manifest (PWA / Browsers)
   icons: {
-    icon: "/favicon.ico",
+    icon: "/images/logo.png",
     shortcut: "/images/favicon-32x32.png",
     apple: "/images/apple-touch-icon.png",
   },
@@ -95,9 +95,9 @@ export default function RootLayout({
       <head>
         <link
           rel="icon"
-          href="/images/favicon.svg"
-          type="image/svg+xml"
-          sizes="48x48"
+          href="/images/logo.png"
+          type="image/png"
+          sizes="any"
         />
         <link rel="canonical" href="http://localhost:3000/" key="canonical" />
       </head>

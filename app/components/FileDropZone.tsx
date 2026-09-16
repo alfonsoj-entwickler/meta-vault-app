@@ -157,7 +157,7 @@ export default function FileDropZone() {
       <div className="flex flex-col justify-between items-center h-full pt-30 sm:pt-20">
         <h1 className="flex items-center gap-4 text-2xl font-black">
           <Image
-            src="/images/logo.svg"
+            src="/images/logo.png"
             alt="Logo"
             width={50}
             height={50}
