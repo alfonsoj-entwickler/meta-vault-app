@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://localhost:3000";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://meta-vault.app";
   return [
     {
       url: baseUrl,
