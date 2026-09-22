@@ -17,6 +17,15 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
+    "types": [
+      "node",
+      "react",
+      "react-dom",
+      "leaflet",
+      "piexifjs",
+      "png-chunks-encode",
+      "png-chunks-extract"
+    ],
     "plugins": [
       {
         "name": "next"
