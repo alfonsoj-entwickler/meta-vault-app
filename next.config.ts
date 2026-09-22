@@ -1,29 +1,28 @@
 import type { NextConfig } from "next";
 
-const withPWA = require('next-pwa')({
-  dest: 'public',       // Where service worker files are generated
-  register: true,       // Auto-register the service worker
-  skipWaiting: true,    // Activate new SW immediately on update
-  disable: process.env.NODE_ENV === 'development', // Only active in production
-});
+// const withPWA = require('next-pwa')({
+//   dest: 'public',
+//   register: true,
+//   skipWaiting: true,
+//   disable: process.env.NODE_ENV === 'development',
+// });
 
-const ContentSecurityPolicy = [
-  "default-src 'self'",
-  // 'unsafe-inline' and 'unsafe-eval' are required by Leaflet and tsparticles —
-  // both libraries generate and eval code at runtime and cannot work without them.
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-  "style-src 'self' 'unsafe-inline'",
-  // blob: and data: are needed for image previews; OpenStreetMap for Leaflet map tiles.
-  "img-src 'self' blob: data: https://*.tile.openstreetmap.org",
-  "font-src 'self' https://fonts.gstatic.com",
-  "connect-src 'self' https://fonts.googleapis.com https://*.tile.openstreetmap.org",
-  // tsparticles spawns Web Workers via blob: URLs, so worker-src must allow it.
-  "worker-src blob:",
-  "frame-ancestors 'none'",
-].join("; ");
+// const ContentSecurityPolicy = [
+//   "default-src 'self'",
+//   "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+//   "style-src 'self' 'unsafe-inline'",
+//   "img-src 'self' blob: data: https://*.tile.openstreetmap.org",
+//   "font-src 'self' https://fonts.gstatic.com",
+//   "connect-src 'self' https://fonts.googleapis.com https://*.tile.openstreetmap.org",
+//   "worker-src blob:",
+//   "frame-ancestors 'none'",
+// ].join("; ");
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  turbopack: {
+    root: __dirname,
+  },
   // async headers() {
   //   return [
   //     {
