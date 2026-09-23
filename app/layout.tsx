@@ -34,9 +34,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: baseUrl,
     languages: {
-      "es-ES": `${baseUrl}/`,
-      "en-US": `${baseUrl}/`,
-      "x-default": `${baseUrl}/`,
+      "es-ES": `${baseUrl}`,
+      "en-US": `${baseUrl}`,
+      "x-default": `${baseUrl}`,
     },
   },
   openGraph: {
@@ -103,7 +103,7 @@ const jsonLd = {
   "@graph": [
     {
       "@type": "WebApplication",
-      "@id": `${baseUrl}/#webapp`,
+      "@id": `${baseUrl}#webapp`,
       name: "Meta Vault",
       alternateName: "MetaVault",
       url: baseUrl,
@@ -127,7 +127,7 @@ const jsonLd = {
     },
     {
       "@type": "WebSite",
-      "@id": `${baseUrl}/#website`,
+      "@id": `${baseUrl}#website`,
       url: baseUrl,
       name: "Meta Vault",
       description: en.seo.description,
@@ -137,7 +137,7 @@ const jsonLd = {
         url: baseUrl,
         logo: {
           "@type": "ImageObject",
-          url: `${baseUrl}/images/logo.png`,
+          url: `${baseUrl}images/logo.png`,
         },
       },
     },
