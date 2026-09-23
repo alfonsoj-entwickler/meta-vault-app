@@ -10,7 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 // This is a static export (output: "export") — there is no runtime server.
 // Metadata is generated once at build time, so we always use English here.
 // The client-side LanguageProvider handles the user's actual language preference.
-const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://meta-vault.app";
+const baseUrl = process.env.SITE_URL || "https://meta-vault.app";
 const twitterHandle = process.env.NEXT_PUBLIC_TWITTER_HANDLE || "@MetaVaultApp";
 const siteTitle = "Meta Vault – Privacy-First Image Metadata & EXIF Editor";
 
