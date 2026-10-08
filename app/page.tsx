@@ -15,8 +15,8 @@ const MetadataEditor = dynamic(() => import("@/components/MetadataEditor"), {
   loading: () => null,
 });
 
-// tsparticles also touches `window` on import, so it needs the same treatment.
-const ParticlesBg = dynamic(() => import("@/components/ParticlesBg"), {
+// MetaballsCanvas relies on canvas and browser APIs, rendered client-side only
+const MetaballsCanvas = dynamic(() => import("@/components/MetaballsCanvas"), {
   ssr: false,
   loading: () => null,
 });
@@ -36,8 +36,8 @@ export default function Home() {
             </>
           ) : (
             <>
-              <ErrorBoundary componentName="ParticlesBg">
-                <ParticlesBg />
+              <ErrorBoundary componentName="MetaballsCanvas">
+                <MetaballsCanvas />
               </ErrorBoundary>
               <FileDropZone />
             </>
