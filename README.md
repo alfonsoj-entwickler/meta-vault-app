@@ -97,7 +97,7 @@ meta-vault-app/
 │   │   ├── ImageMetaData.tsx          # Image preview + replacement
 │   │   ├── MetadataEditor.tsx         # Main editor with map and form
 │   │   ├── LanguageSelector.tsx       # Language switcher
-│   │   ├── ParticlesBg.tsx            # Animated background
+│   │   ├── MetaballsCanvas.tsx        # Animated canvas background
 │   │   ├── ContentFeatures.tsx        # Feature highlights
 │   │   └── Footer.tsx
 │   │
